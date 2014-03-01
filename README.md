@@ -1,8 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/lassebunk/fetch.png)](http://travis-ci.org/lassebunk/fetch)
 
-# Fetch!
-
-![Fetch](http://i.imgur.com/B8TXlri.png)
+# Fetch
 
 ## Installation
 
