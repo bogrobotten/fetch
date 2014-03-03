@@ -1,4 +1,4 @@
 require "test_helper"
 
-class FetchTest < Test::Unit::TestCase
+class FetchTest < ActiveSupport::TestCase
 end
