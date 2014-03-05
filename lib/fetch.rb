@@ -1,10 +1,11 @@
+require "typhoeus"
 require "fetchable"
 
 %w{
   version
-  engine
   base
   module
+  async
   configuration
 }.each do |file|
   require "fetch/#{file}"

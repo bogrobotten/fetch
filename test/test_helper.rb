@@ -1,17 +1,25 @@
-# Configure Rails Environment
-ENV["RAILS_ENV"] = "test"
+require "test/unit"
+require "active_record"
 
-require File.expand_path("../dummy/config/environment.rb",  __FILE__)
-require "rails/test_help"
-
-Rails.backtrace_cleaner.remove_silencers!
+require "fetch"
 
 # Load support files
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
-# Load fixtures from the engine
-if ActiveSupport::TestCase.method_defined?(:fixture_path=)
-  ActiveSupport::TestCase.fixture_path = File.expand_path("../fixtures", __FILE__)
+# Set up database
+ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
+
+ActiveRecord::Migration.create_table :users do |t|
+  t.string :login
+  t.integer :github_id
+  t.integer :twitter_id
+  t.integer :some_other_id
 end
 
-require "fetch"
+# Load fixtures
+Dir["#{File.dirname(__FILE__)}/fixtures/**/*.rb"].each { |f| require f }
+
+# Configure Fetch
+Fetch.configure do |config|
+  config.raise_on_error = true
+end

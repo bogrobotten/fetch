@@ -1,12 +1,6 @@
 module Fetch
   class Base
     class << self
-      attr_reader :fetchable
-
-      def initialize(fetchable)
-        @fetchable = fetchable
-      end
-
       # Fetch modules definition
       def fetch_modules
         @fetch_modules ||= []
@@ -51,15 +45,71 @@ module Fetch
           end
         end
       end
+
+      private
+
+      def constantize_fetch_module(source_key, module_key)
+        Fetch.config.namespaces.map do |namespace|
+          "#{namespace}/#{source_key}/#{module_key}".camelize.safe_constantize
+        end.compact.first
+      end
     end
 
+    attr_reader :fetchable
+
+    def initialize(fetchable)
+      @fetchable = fetchable
+    end
 
     # Fetch
     def begin
+      @total_count = fetch_modules.count
+      @completed_count = 0
 
+      update_progress
+      run_callbacks_for(:before_fetch)
+
+      hydra = Typhoeus::Hydra.new
+
+      fetch_modules.each do |fetch_module|
+        if fetch_module.fetch?
+          fetch_module.before_fetch
+          if fetch_module.async?
+            request = fetch_module.request do
+              fetch_module.after_fetch
+              update_progress true
+            end
+            Array(request).each { |request| hydra.queue request }
+          else
+            fetch_module.fetch
+            fetch_module.after_fetch
+            update_progress true
+          end
+        else
+          update_progress true
+        end
+      end
+
+      hydra.run
+
+      run_callbacks_for(:after_fetch)
     end
 
     private
+
+      def run_callbacks_for(callback, *args)
+        self.class.run_callbacks_for(callback, *args)
+      end
+
+      def update_progress(one_completed = false)
+        @completed_count += 1 if one_completed
+        run_callbacks_for(:progress, progress)
+      end
+
+      def progress
+        return 100 if @total_count == 0
+        ((@completed_count.to_f / @total_count) * 100).to_i
+      end
 
       def sources
         @sources ||= begin
@@ -72,20 +122,15 @@ module Fetch
         end
       end
 
-      def source_modules
-        @source_modules ||= begin
+      def fetch_modules
+        @fetch_modules ||= begin
           sources.map do |source_key|
             self.class.fetch_modules.map do |module_key|
-              self.class.fetch_source_modules[source_key][module_key]
+              mod = self.class.fetch_source_modules[source_key][module_key]
+              mod.new(fetchable) if mod
             end
-          end.flatten
+          end.flatten.compact
         end
-      end
-
-      def constantize_fetch_module(source_key, module_key)
-        Fetch.config.namespaces.map do |namespace|
-          "#{namespace}/#{source_key}/#{module_key}".camelize.safe_constantize
-        end.compact.first
       end
   end
 end

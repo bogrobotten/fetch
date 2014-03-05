@@ -1,5 +1,7 @@
 module Fetchable
-  extend ActiveSupport::Concern
+  def self.included(base)
+    base.extend ClassMethods
+  end
 
   def fetch
     @fetch ||= self.class.fetcher.new(self)
@@ -11,7 +13,7 @@ module Fetchable
     end
 
     def fetcher
-      @fetcher ||= "#{self.class.name}Fetch"
+      @fetcher ||= "#{name}Fetch"
       @fetcher = @fetcher.constantize if @fetcher.is_a?(String)
       @fetcher
     end

@@ -11,7 +11,7 @@ module Fetch
     end
 
     def fetch
-      raise "#{self.class.name} must implement either #fetch, or #url and #response for async fetch."
+      raise "#{self.class.name} must either implement #fetch or `include Fetch::Async` to do async fetch."
     end
 
     def before_fetch
@@ -21,7 +21,20 @@ module Fetch
     end
 
     def async?
-      respond_to?(:url) && respond_to?(:response)
+      false
+    end
+
+    def failed(message_or_exception)
+      case message_or_exception
+      when Exception
+        if Fetch.config.raise_on_error
+          raise message_or_exception
+        else
+          failed message_or_exception.message
+        end
+      else
+        # TODO: Log message
+      end
     end
   end
 end
