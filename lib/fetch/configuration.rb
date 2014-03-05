@@ -6,7 +6,8 @@ module Fetch
       DEFAULT_RAISE_ON_ERROR = false
       DEFAULT_NAMESPACES = ["fetch_modules"]
 
-      # Default user agent for async fetches.
+      # User agent for async fetches.
+      # Default is 'Mozilla/5.0'.
       def user_agent
         @user_agent ||= DEFAULT_USER_AGENT
       end
@@ -14,6 +15,7 @@ module Fetch
       attr_writer :user_agent
 
       # Timeout for async fetches.
+      # Default is 10 seconds.
       def timeout
         @timeout ||= DEFAULT_TIMEOUT
       end
