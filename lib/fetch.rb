@@ -4,6 +4,7 @@ require "fetchable"
   version
   engine
   base
+  module
   configuration
 }.each do |file|
   require "fetch/#{file}"
