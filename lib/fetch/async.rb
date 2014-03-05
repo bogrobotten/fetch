@@ -1,22 +1,41 @@
 module Fetch
   module Async
+    # URL or array of URLs to call in the request.
+    # Must be implemented to do async fetch.
+    #
+    #   def url
+    #     "https://api.github.com/users/#{fetchable.login}"
+    #   end
     def url
       raise "#{self.class.name} must implement #url to do async fetch."
     end
 
+    # Method that handles the response retrieved from +#url+.
+    # Must be implemented to do async fetch.
+    #
+    #   def response
+    #     json = JSON.parse(body)
+    #     # do something with the JSON
+    #   end
     def response
       raise "#{self.class.name} must implement #response that handles response to do async fetch."
     end
 
+    # Holds the current URL being processed, useful when fetching from multiple URLs.
     attr_reader :current_url
+
+    # The final URL in the request, e.g. after being redirected.
     attr_reader :effective_url
+
+    # Body of the response. Can be used in +#response+.
     attr_reader :body
 
     def async?
       true
     end
 
-    def request(&callback)
+    # Async requests to be enqueued with +Typhoeus::Hydra+.
+    def requests(&callback)
       urls = Array(url)
 
       remaining_requests = urls.count

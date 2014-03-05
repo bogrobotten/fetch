@@ -12,6 +12,7 @@ module Fetch
         @user_agent ||= DEFAULT_USER_AGENT
       end
 
+      # Sets user agent for async fetches.
       attr_writer :user_agent
 
       # Timeout for async fetches.
@@ -20,6 +21,7 @@ module Fetch
         @timeout ||= DEFAULT_TIMEOUT
       end
 
+      # Sets timeout for async fetches.
       attr_writer :timeout
 
       # Whether to raise exception on fetch error. Default is +false+.
@@ -34,6 +36,7 @@ module Fetch
         end
       end
 
+      # Sets whether to raise exception on fetch error.
       attr_writer :raise_on_error
 
       # Namespaces in which to look for fetch modules.
@@ -42,6 +45,7 @@ module Fetch
         @namespaces ||= DEFAULT_NAMESPACES
       end
 
+      # Sets namespaces in which to look for fetch modules.
       attr_writer :namespaces
 
       # Convenience method for defining a single namespace that contains fetch modules.

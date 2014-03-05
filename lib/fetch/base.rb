@@ -1,35 +1,59 @@
 module Fetch
   class Base
     class << self
-      # Fetch modules definition
+      # Array of fetch module keys to be used when fetching.
+      # Can be set using +fetches_with+.
       def fetch_modules
         @fetch_modules ||= []
       end
 
+      # Sets which fetch modules to use when fetching.
+      #
+      #   fetches_with :user_info_fetch, :avatar_fetch
       def fetches_with(*module_keys)
         @fetch_modules = module_keys
       end
 
-      # Fetch sources definition
+      # Array of fetch sources to use when fetching.
       def fetch_sources
         @fetch_sources ||= []
       end
 
+      # Sets which fetch sources to use when fetching.
+      #
+      #   fetches_from [:github, :twitter, :gravatar]
       def fetches_from(proc_or_array)
         @fetch_sources = proc_or_array
       end
 
-      # Callbacks
+      # Hash of callback blocks to be called.
       def callbacks
         @callbacks ||= Hash.new { |h, k| h[k] = [] }
       end
 
+      # Set callbacks to be called when fetching.
+      #
+      #   before_fetch do
+      #     # do something before fetching
+      #   end
+      #
+      #   after_fetch do
+      #     # do something after fetching
+      #   end
+      #
+      #   progress do |progress|
+      #     # update progress in percent
+      #   end
       [:before_fetch, :after_fetch, :progress].each do |callback|
         define_method callback do |&block|
           callbacks[callback] << block
         end
       end
 
+      # Run specific callbacks.
+      #
+      #   run_callbacks_for(:before_fetch)
+      #   run_callbacks_for(:progress, 12) # 12 percent done
       def run_callbacks_for(callback, *args)
         callbacks[callback].each { |block| block.call(*args) }
       end
@@ -61,7 +85,9 @@ module Fetch
       @fetchable = fetchable
     end
 
-    # Fetch
+    # Begin fetching.
+    # Will run synchronous fetches first and async fetches afterwards.
+    # Updates progress when each module finishes its fetch.
     def begin
       @total_count = fetch_modules.count
       @completed_count = 0
