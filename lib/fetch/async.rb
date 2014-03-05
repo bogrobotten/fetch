@@ -19,7 +19,7 @@ module Fetch
     def request(&callback)
       urls = Array(url)
 
-      @remaining_requests = urls.count
+      remaining_requests = urls.count
 
       urls.map do |url|
         request = Typhoeus::Request.new(
@@ -44,9 +44,9 @@ module Fetch
             failed r.return_message
           end
 
-          @remaining_requests -= 1
+          remaining_requests -= 1
 
-          if @remaining_requests == 0 && callback
+          if remaining_requests == 0 && callback
             callback.call
           end
         end
