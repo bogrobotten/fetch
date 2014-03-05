@@ -47,7 +47,7 @@ module Fetch
       def fetch_source_modules
         @fetch_source_modules ||= Hash.new do |source_hash, source_key|
           source_hash[source_key] = Hash.new do |module_hash, module_key|
-            module_hash[module_key] = "fetch_modules/#{source_key}/#{module_key}".camelize.safe_constantize
+            module_hash[module_key] = constantize_fetch_module(source_key, module_key)
           end
         end
       end
@@ -80,6 +80,12 @@ module Fetch
             end
           end.flatten
         end
+      end
+
+      def constantize_fetch_module(source_key, module_key)
+        Fetch.config.namespaces.map do |namespace|
+          "#{namespace}/#{source_key}/#{module_key}".camelize.safe_constantize
+        end.compact.first
       end
   end
 end

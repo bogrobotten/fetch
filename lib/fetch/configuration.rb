@@ -4,6 +4,7 @@ module Fetch
       DEFAULT_USER_AGENT = "Mozilla/5.0"
       DEFAULT_TIMEOUT = 10
       DEFAULT_RAISE_ON_ERROR = false
+      DEFAULT_NAMESPACES = ["fetch_modules"]
 
       # Default user agent for async fetches.
       def user_agent
@@ -32,6 +33,19 @@ module Fetch
       end
 
       attr_writer :raise_on_error
+
+      # Namespaces in which to look for fetch modules.
+      # Default is +["fetch_modules"]+.
+      def namespaces
+        @namespaces ||= DEFAULT_NAMESPACES
+      end
+
+      attr_writer :namespaces
+
+      # Convenience method for defining a single namespace that contains fetch modules.
+      def namespace=(value)
+        self.namespaces = [value]
+      end
     end
   end
 end
