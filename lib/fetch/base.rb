@@ -1,3 +1,4 @@
+# Base module for fetch handlers, e.g. +ProductFetch+, +UserFetch+, etc.
 module Fetch
   class Base
     class << self

@@ -7,7 +7,7 @@ module Fetch
       @fetchable = fetchable
     end
 
-    # Can be overriden to return whether to fetch (+true which is default),
+    # Can be overridden to return whether to fetch (+true which is default),
     # or +false+ to skip the fetch.
     def fetch?
       true

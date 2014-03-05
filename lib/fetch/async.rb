@@ -10,7 +10,8 @@ module Fetch
       raise "#{self.class.name} must implement #url to do async fetch."
     end
 
-    # Method that handles the response retrieved from +#url+.
+    # Method that implements the logic for handling the response retrieved from
+    # +#url+.
     # Must be implemented to do async fetch.
     #
     #   def response
@@ -21,15 +22,18 @@ module Fetch
       raise "#{self.class.name} must implement #response that handles response to do async fetch."
     end
 
-    # Holds the current URL being processed, useful when fetching from multiple URLs.
+    # Returns the current URL being processed; useful when fetching from
+    # multiple URLs.
     attr_reader :current_url
 
-    # The final URL in the request, e.g. after being redirected.
+    # Returns the final URL in the request, e.g. after being redirected.
     attr_reader :effective_url
 
-    # Body of the response. Can be used in +#response+.
+    # Returns the body of the response retrieved from the URL.
+    # To be used in +#response+.
     attr_reader :body
 
+    # Returns +true+.
     def async?
       true
     end
