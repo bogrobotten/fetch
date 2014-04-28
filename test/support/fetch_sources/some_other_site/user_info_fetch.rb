@@ -1,4 +1,4 @@
-module FetchModules
+module FetchSources
   module SomeOtherSite
     class UserInfoFetch < Fetch::Module
       def fetch

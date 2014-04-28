@@ -4,7 +4,7 @@ module Fetch
       DEFAULT_USER_AGENT = "Mozilla/5.0"
       DEFAULT_TIMEOUT = 10
       DEFAULT_RAISE_ON_ERROR = false
-      DEFAULT_NAMESPACES = ["fetch_modules"]
+      DEFAULT_NAMESPACES = ["fetch_sources"]
 
       # User agent for async fetches.
       # Default is 'Mozilla/5.0'.
