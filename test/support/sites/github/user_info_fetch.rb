@@ -3,11 +3,11 @@ module Sites
     class UserInfoFetch < Fetch::Module
       include Async
 
-      def url
+      url do
         "https://api.github.com/users/#{fetchable.login}"
       end
 
-      def response
+      response do
         json = JSON.parse(body)
         
         fetchable.update_attribute :github_id, json["id"]

@@ -81,12 +81,14 @@ module Fetch
       @completed_count = 0
 
       update_progress
-      callback(:before_fetch)
+      before_fetch
 
       hydra = Typhoeus::Hydra.new
 
       fetch_modules.each do |fetch_module|
-        if fetch_module.fetch?
+        if fetch_module.before_filter == false
+          update_progress true
+        else
           fetch_module.before_fetch
           if fetch_module.async?
             request = fetch_module.request do
@@ -99,24 +101,22 @@ module Fetch
             fetch_module.after_fetch
             update_progress true
           end
-        else
-          update_progress true
         end
       end
 
       hydra.run
 
-      callback(:after_fetch)
+      after_fetch
     end
 
     private
 
       def update_progress(one_completed = false)
         @completed_count += 1 if one_completed
-        callback(:progress, progress)
+        progress(progress_percent)
       end
 
-      def progress
+      def progress_percent
         return 100 if @total_count == 0
         ((@completed_count.to_f / @total_count) * 100).to_i
       end

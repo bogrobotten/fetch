@@ -4,16 +4,18 @@ module Fetch
       base.extend ClassMethods
     end
 
+    private
+
     # Run specific callbacks.
     #
-    #   callback(:before_fetch)
-    #   callback(:progress, 12) # 12 percent done
-    def callback(callback, *args)
+    #   run_callbacks_for(:before_fetch)
+    #   run_callbacks_for(:progress, 12) # 12 percent done
+    def run_callbacks_for(callback, *args)
       results = []
       self.class.callbacks[callback].each do |block|
-        results << block.call(*args)
+        results << instance_exec(*args, &block)
       end
-      results
+      results.last
     end
 
     module ClassMethods
@@ -24,9 +26,13 @@ module Fetch
 
       # Defines callback methods on the class level.
       def define_callback(*names)
-        names.each do |callback|
-          define_singleton_method callback do |&block|
-            callbacks[callback] << block
+        names.each do |name|
+          define_singleton_method name do |&block|
+            callbacks[name] << block
+          end
+
+          define_method name do |*args|
+            run_callbacks_for(name, *args)
           end
         end
       end

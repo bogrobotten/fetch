@@ -1,13 +1,7 @@
 module Fetch
   module Async
-    # URL or array of URLs to call in the request.
-    # Must be implemented to do async fetch.
-    #
-    #   def url
-    #     "https://api.github.com/users/#{fetchable.login}"
-    #   end
-    def url
-      raise "#{self.class.name} must implement #url to do async fetch."
+    def self.included(base)
+      base.define_callback :url, :response
     end
 
     # Method that implements the logic for handling the response retrieved from

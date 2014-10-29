@@ -1,33 +1,23 @@
 module Fetch
   class Module
+    include Callbacks
+
+    define_callback :before_filter,
+                    :fetch,
+                    :before_fetch,
+                    :after_fetch
+
+    before_filter { true }
+
     # Makes it possible to include +Async+ directly in subclasses.
     Async = Fetch::Async
 
+    # The object being fetched.
     attr_reader :fetchable
 
     # Initializes the fetch module with a fetchable.
     def initialize(fetchable)
       @fetchable = fetchable
-    end
-
-    # Can be overridden to return whether to fetch (+true which is default),
-    # or +false+ to skip the fetch.
-    def fetch?
-      true
-    end
-
-    # Method to be run when fetching with this module.
-    # Must be overridden unless doing async fetches.
-    def fetch
-      raise "#{self.class.name} must either implement #fetch or `include Fetch::Async` to do async fetch."
-    end
-
-    # Can be overridden to do custom logic before fetching.
-    def before_fetch
-    end
-
-    # Can be overridden to do custom logic after fetching.
-    def after_fetch
     end
 
     # Whether this module is an async fetch module.
