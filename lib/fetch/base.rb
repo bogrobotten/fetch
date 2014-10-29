@@ -1,6 +1,25 @@
 # Base module for fetch handlers, e.g. +ProductFetch+, +UserFetch+, etc.
 module Fetch
   class Base
+    include Callbacks
+
+    # Set callbacks to be called when fetching.
+    #
+    #   before_fetch do
+    #     # do something before fetching
+    #   end
+    #
+    #   after_fetch do
+    #     # do something after fetching
+    #   end
+    #
+    #   progress do |progress|
+    #     # update progress in percent
+    #   end
+    define_callback :before_fetch,
+                    :after_fetch,
+                    :progress
+
     class << self
       # Array of fetch module keys to be used when fetching.
       # Can be set using +fetches_with+.
@@ -25,38 +44,6 @@ module Fetch
       #   fetches_from [:github, :twitter, :gravatar]
       def fetches_from(proc_or_array)
         @fetch_sources = proc_or_array
-      end
-
-      # Hash of callback blocks to be called.
-      def callbacks
-        @callbacks ||= Hash.new { |h, k| h[k] = [] }
-      end
-
-      # Set callbacks to be called when fetching.
-      #
-      #   before_fetch do
-      #     # do something before fetching
-      #   end
-      #
-      #   after_fetch do
-      #     # do something after fetching
-      #   end
-      #
-      #   progress do |progress|
-      #     # update progress in percent
-      #   end
-      [:before_fetch, :after_fetch, :progress].each do |callback|
-        define_method callback do |&block|
-          callbacks[callback] << block
-        end
-      end
-
-      # Run specific callbacks.
-      #
-      #   run_callbacks_for(:before_fetch)
-      #   run_callbacks_for(:progress, 12) # 12 percent done
-      def run_callbacks_for(callback, *args)
-        callbacks[callback].each { |block| block.call(*args) }
       end
 
       # Cached fetch source modules.
@@ -123,10 +110,6 @@ module Fetch
     end
 
     private
-
-      def run_callbacks_for(callback, *args)
-        self.class.run_callbacks_for(callback, *args)
-      end
 
       def update_progress(one_completed = false)
         @completed_count += 1 if one_completed

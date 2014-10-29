@@ -3,6 +3,7 @@ require "fetchable"
 
 %w{
   version
+  callbacks
   base
   async
   module
