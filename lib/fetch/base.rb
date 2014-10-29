@@ -136,8 +136,7 @@ module Fetch
         @fetch_modules ||= begin
           sources.map do |source_key|
             self.class.fetch_modules.map do |module_key|
-              mod = self.class.module_cache[source_key][module_key]
-              mod.new(fetchable) if mod
+              self.class.module_cache[source_key][module_key].try(:new, fetchable)
             end
           end.flatten.compact
         end
