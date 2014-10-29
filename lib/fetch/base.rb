@@ -48,10 +48,10 @@ module Fetch
 
       # Cached fetch source modules.
       #
-      #   Fetch::Base.fetch_source_modules[:google][:search] # => FetchModules::Google::Search
-      #   Fetch::Base.fetch_source_modules[:google][:nonexistent] # => nil
-      def fetch_source_modules
-        @fetch_source_modules ||= Hash.new do |source_hash, source_key|
+      #   Fetch::Base.module_cache[:google][:search] # => FetchModules::Google::Search
+      #   Fetch::Base.module_cache[:google][:nonexistent] # => nil
+      def module_cache
+        @module_cache ||= Hash.new do |source_hash, source_key|
           source_hash[source_key] = Hash.new do |module_hash, module_key|
             module_hash[module_key] = constantize_fetch_module(source_key, module_key)
           end
@@ -136,7 +136,7 @@ module Fetch
         @fetch_modules ||= begin
           sources.map do |source_key|
             self.class.fetch_modules.map do |module_key|
-              mod = self.class.fetch_source_modules[source_key][module_key]
+              mod = self.class.module_cache[source_key][module_key]
               mod.new(fetchable) if mod
             end
           end.flatten.compact
