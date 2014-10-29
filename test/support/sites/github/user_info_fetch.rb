@@ -1,4 +1,4 @@
-module FetchSources
+module Sites
   module Github
     class UserInfoFetch < Fetch::Module
       include Fetch::Async
