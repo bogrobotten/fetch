@@ -9,9 +9,11 @@ module Fetch
     #   callback(:before_fetch)
     #   callback(:progress, 12) # 12 percent done
     def callback(callback, *args)
+      results = []
       self.class.callbacks[callback].each do |block|
-        block.call(*args)
+        results << block.call(*args)
       end
+      results
     end
 
     module ClassMethods
