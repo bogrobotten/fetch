@@ -9,11 +9,9 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 # Set up database
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
-ActiveRecord::Migration.create_table :users do |t|
-  t.string :login
-  t.integer :github_id
-  t.integer :twitter_id
-  t.integer :some_other_id
+# Migrate
+silence_stream(STDOUT) do
+  Dir["#{File.dirname(__FILE__)}/migrate/**/*.rb"].each { |f| require f }
 end
 
 # Load fixtures
