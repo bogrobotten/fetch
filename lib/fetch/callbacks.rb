@@ -6,9 +6,9 @@ module Fetch
 
     # Run specific callbacks.
     #
-    #   run_callbacks_for(:before_fetch)
-    #   run_callbacks_for(:progress, 12) # 12 percent done
-    def run_callbacks_for(callback, *args)
+    #   callback(:before_fetch)
+    #   callback(:progress, 12) # 12 percent done
+    def callback(callback, *args)
       self.class.callbacks[callback].each do |block|
         block.call(*args)
       end

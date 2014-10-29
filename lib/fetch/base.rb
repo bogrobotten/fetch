@@ -81,7 +81,7 @@ module Fetch
       @completed_count = 0
 
       update_progress
-      run_callbacks_for(:before_fetch)
+      callback(:before_fetch)
 
       hydra = Typhoeus::Hydra.new
 
@@ -106,14 +106,14 @@ module Fetch
 
       hydra.run
 
-      run_callbacks_for(:after_fetch)
+      callback(:after_fetch)
     end
 
     private
 
       def update_progress(one_completed = false)
         @completed_count += 1 if one_completed
-        run_callbacks_for(:progress, progress)
+        callback(:progress, progress)
       end
 
       def progress
