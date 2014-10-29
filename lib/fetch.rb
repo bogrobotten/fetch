@@ -4,8 +4,8 @@ require "fetchable"
 %w{
   version
   base
-  module
   async
+  module
   configuration
 }.each do |file|
   require "fetch/#{file}"

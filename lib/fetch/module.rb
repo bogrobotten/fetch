@@ -1,5 +1,8 @@
 module Fetch
   class Module
+    # Makes it possible to include +Async+ directly in subclasses.
+    Async = Fetch::Async
+
     attr_reader :fetchable
 
     # Initializes the fetch module with a fetchable.
