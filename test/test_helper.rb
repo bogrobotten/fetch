@@ -16,9 +16,3 @@ end
 
 # Load fixtures
 Dir["#{File.dirname(__FILE__)}/fixtures/**/*.rb"].each { |f| require f }
-
-# Configure Fetch
-Fetch.configure do |config|
-  config.raise_on_error = true
-  config.namespace = "sites"
-end
