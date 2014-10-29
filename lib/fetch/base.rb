@@ -126,7 +126,7 @@ module Fetch
           sources = self.class.fetch_sources
           case sources
           when Array then sources
-          when Proc then instance_eval(&:sources)
+          when Proc then instance_eval(&sources)
           else raise "Unknown fetch sources #{sources.inspect}"
           end
         end
