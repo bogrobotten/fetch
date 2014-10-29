@@ -1,5 +1,5 @@
 class UserFetch < Fetch::Base
-  fetches_from [:github, :some_other_site]
+  fetches_from [:facebook, :github, :some_other_site]
   fetches_with :user_info_fetch
 
   before_fetch do
