@@ -1,6 +1,6 @@
 require "test_helper"
 
-class FetchTest < Test::Unit::TestCase
+class FetchTest < Minitest::Test
   def test_async_fetch
     user = User.find_by_login!("lassebunk")
     user.fetch.begin
