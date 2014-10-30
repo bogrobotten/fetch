@@ -7,6 +7,11 @@
 Fetch enables easy fetching of data from multiple web sources.
 It was extracted from [Bogrobotten](http://www.bogrobotten.dk) where we use it
 to fetch prices and other stuff from multiple merchants.
+We use it for price comparison, but you can use it for anything that involves
+fetching data from external sources.
+
+Fetch uses the [Typhoeus](https://github.com/typhoeus/typhoeus) gem for fast
+and reliable asynchronous fetches from multiple URLs.
 
 ## Installation
 
