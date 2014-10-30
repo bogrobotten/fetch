@@ -9,6 +9,7 @@ require "typhoeus"
   async
   module
   configuration
+  progress
 }.each do |file|
   require "fetch/#{file}"
 end
