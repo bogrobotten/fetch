@@ -7,7 +7,7 @@ module Sites
         "http://graph.facebook.com/#{fetchable.login}"
       end
 
-      response do |body|
+      process do |body|
         json = JSON.parse(body)
 
         fetchable.update_attribute :facebook_id, json["id"]

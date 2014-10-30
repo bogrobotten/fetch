@@ -1,7 +1,7 @@
 module Fetch
   module Async
     def self.included(base)
-      base.define_callback :url, :response
+      base.define_callback :url, :process
     end
 
     # Returns +true+.
@@ -28,7 +28,7 @@ module Fetch
           if res.success?
             begin
               effective_url = res.effective_url || url
-              response(res.body, url, effective_url)
+              process(res.body, url, effective_url)
             rescue => e
               failed e
             end
