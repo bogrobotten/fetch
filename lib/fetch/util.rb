@@ -30,7 +30,8 @@ module Fetch
     #   # => nil
     def self.safe_constantize(name)
       constantize(name)
-    rescue NameError
+    rescue NameError => e
+      raise e unless e.message.include?(name)
       nil
     end
   end
