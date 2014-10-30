@@ -60,6 +60,11 @@ module Fetch
           !!completed_at
         end
 
+        # Returns +true+ if the fetch is started and isn't completed.
+        def running?
+          started? && !completed?
+        end
+
         # Returns the progress in percent.
         def percent
           redis.get("#{redis_prefix}:progress").to_i
