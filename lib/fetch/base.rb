@@ -105,7 +105,8 @@ module Fetch
     # Constantizes a fetch module from +source_key+ and +module_key+.
     def self.constantize_fetch_module(source_key, module_key)
       namespaces.map do |namespace|
-        "#{namespace}/#{source_key}/#{module_key}".camelize.safe_constantize
+        klass = Util.camelize("#{namespace}/#{source_key}/#{module_key}")
+        Util.safe_constantize(klass)
       end.compact.first
     end
 

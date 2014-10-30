@@ -4,6 +4,7 @@ require "fetchable"
 
 %w{
   version
+  util
   callbacks
   base
   async
