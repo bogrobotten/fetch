@@ -24,6 +24,32 @@ module Fetch
 
     attr_reader :fetchable
 
+    class << self
+      # Sets or returns namespaces in which to look for fetch modules.
+      # If namespaces haven't been set on the particular fetcher, default
+      # namespaces from the Fetch configuration will be returned.
+      #
+      #   namespaces :sites, :merchants
+      #   namespaces [:sites, :merchants]
+      #
+      #   namespaces # => [:sites, :merchants]
+      def namespaces(*names)
+        if names.any?
+          @namespaces = names.flatten
+        else
+          @namespaces || Fetch.config.namespaces
+        end
+      end
+
+      # Convenience method for setting a single namespace.
+      #
+      #   namespace :sites
+      #   namespaces # => [:sites]
+      def namespace(name)
+        namespaces(name)
+      end
+    end
+
     # Initialize the fetcher with a fetchable instance.
     def initialize(fetchable)
       @fetchable = fetchable
@@ -81,7 +107,7 @@ module Fetch
 
     # Constantizes a fetch module from +source_key+ and +module_key+.
     def self.constantize_fetch_module(source_key, module_key)
-      Fetch.config.namespaces.map do |namespace|
+      namespaces.map do |namespace|
         "#{namespace}/#{source_key}/#{module_key}".camelize.safe_constantize
       end.compact.first
     end

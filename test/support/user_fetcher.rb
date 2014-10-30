@@ -1,4 +1,6 @@
 class UserFetcher < Fetch::Base
+  namespaces :sites
+
   sources do
     [:facebook, :github, :some_other_site]
   end

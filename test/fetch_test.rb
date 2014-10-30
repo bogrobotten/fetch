@@ -4,7 +4,6 @@ class FetchTest < Minitest::Test
   def setup
     Fetch.configure do |config|
       config.raise_on_error = true
-      config.namespace = "sites"
     end
   end
 
