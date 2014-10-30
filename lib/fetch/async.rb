@@ -2,6 +2,7 @@ module Fetch
   module Async
     def self.included(base)
       base.define_callback :url,
+                           :user_agent,
                            :before_first_process,
                            :process
     end
@@ -24,7 +25,7 @@ module Fetch
           followlocation: true,
           timeout: Fetch.config.timeout,
           forbid_reuse: true,
-          headers: { "User-Agent" => Fetch.config.user_agent }
+          headers: { "User-Agent" => (user_agent || Fetch.config.user_agent) }
         )
 
         request.on_complete do |res|
