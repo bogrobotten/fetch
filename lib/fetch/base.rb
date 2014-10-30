@@ -104,7 +104,7 @@ module Fetch
         Array(sources).map do |source|
           source_key = extract_source_key(source)
           Array(modules).map do |module_key|
-            self.class.module_cache[source_key][module_key].try(:new, fetchable)
+            self.class.module_cache[source_key][module_key].try(:new, fetchable, source)
           end
         end.flatten.compact
       end

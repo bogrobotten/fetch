@@ -14,9 +14,12 @@ module Fetch
     # The object being fetched.
     attr_reader :fetchable
 
+    # The source being fetched from.
+    attr_reader :source
+
     # Initializes the fetch module with a fetchable.
-    def initialize(fetchable)
-      @fetchable = fetchable
+    def initialize(fetchable, source)
+      @fetchable, @source = fetchable, source
     end
 
     # Whether this module is an async fetch module.
