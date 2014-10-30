@@ -24,32 +24,6 @@ module Fetch
 
     attr_reader :fetchable
 
-    class << self
-      # Sets or returns namespaces in which to look for fetch modules.
-      # If namespaces haven't been set on the particular fetcher, default
-      # namespaces from the Fetch configuration will be returned.
-      #
-      #   namespaces :sites, :merchants
-      #   namespaces [:sites, :merchants]
-      #
-      #   namespaces # => [:sites, :merchants]
-      def namespaces(*names)
-        if names.any?
-          @namespaces = names.flatten
-        else
-          @namespaces || Fetch.config.namespaces
-        end
-      end
-
-      # Convenience method for setting a single namespace.
-      #
-      #   namespace :sites
-      #   namespaces # => [:sites]
-      def namespace(name)
-        namespaces(name)
-      end
-    end
-
     # Initialize the fetcher with a fetchable instance.
     def initialize(fetchable)
       @fetchable = fetchable
@@ -96,6 +70,35 @@ module Fetch
     end
 
     private
+
+    def self.inherited(base)
+      super
+      base.instance_variable_set(:@namespaces, @namespaces.dup) unless @namespaces.nil?
+    end
+
+    # Sets or returns namespaces in which to look for fetch modules.
+    # If namespaces haven't been set on the particular fetcher, default
+    # namespaces from the Fetch configuration will be returned.
+    #
+    #   namespaces :sites, :merchants
+    #   namespaces [:sites, :merchants]
+    #
+    #   namespaces # => [:sites, :merchants]
+    def self.namespaces(*names)
+      if names.any?
+        @namespaces = names.flatten
+      else
+        @namespaces || Fetch.config.namespaces
+      end
+    end
+
+    # Convenience method for setting a single namespace.
+    #
+    #   namespace :sites
+    #   namespaces # => [:sites]
+    def self.namespace(name)
+      namespaces(name)
+    end
 
     # Cached fetch source modules.
     #
