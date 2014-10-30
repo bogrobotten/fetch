@@ -64,6 +64,7 @@ module Fetch
 
       update_progress
       before_fetch
+      fetchable.before_fetch
 
       hydra = Typhoeus::Hydra.new
 
@@ -85,6 +86,7 @@ module Fetch
 
       hydra.run
 
+      fetchable.after_fetch
       after_fetch
     end
 

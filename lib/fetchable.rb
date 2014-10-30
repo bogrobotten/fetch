@@ -1,6 +1,9 @@
 # When included, marks a class as being fetchable, e.g. a User, Product, etc.
 module Fetchable
   def self.included(base)
+    base.include Fetch::Callbacks
+    base.define_callback :before_fetch, :after_fetch
+
     base.extend ClassMethods
   end
 

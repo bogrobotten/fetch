@@ -1,6 +1,5 @@
 require "active_support"
 require "typhoeus"
-require "fetchable"
 
 %w{
   version
@@ -13,6 +12,8 @@ require "fetchable"
 }.each do |file|
   require "fetch/#{file}"
 end
+
+require "fetchable"
 
 module Fetch
   class << self
