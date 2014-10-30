@@ -45,7 +45,7 @@ module Fetch
               failed e
             end
           else
-            failed r.return_message
+            failed res.return_message
           end
 
           remaining_requests -= 1
