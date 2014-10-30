@@ -24,6 +24,7 @@ module Fetch
 
     attr_reader :fetchable
 
+    # Initialize the fetcher with a fetchable instance.
     def initialize(fetchable)
       @fetchable = fetchable
     end
@@ -78,22 +79,26 @@ module Fetch
       end
     end
 
+    # Constantizes a fetch module from +source_key+ and +module_key+.
     def self.constantize_fetch_module(source_key, module_key)
       Fetch.config.namespaces.map do |namespace|
         "#{namespace}/#{source_key}/#{module_key}".camelize.safe_constantize
       end.compact.first
     end
 
+    # Updates progress.
     def update_progress(one_completed = false)
       @completed_count += 1 if one_completed
       progress(progress_percent)
     end
 
+    # Returns the fetch progress in percent.
     def progress_percent
       return 100 if @total_count == 0
       ((@completed_count.to_f / @total_count) * 100).to_i
     end
 
+    # Returns an array on instantiated fetch modules.
     def fetch_modules
       @fetch_modules ||= begin
         Array(sources).map do |source_key|
