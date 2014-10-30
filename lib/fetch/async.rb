@@ -4,6 +4,7 @@ module Fetch
       base.define_callback :url,
                            :user_agent,
                            :before_first_process,
+                           :before_process,
                            :process
     end
 
@@ -34,6 +35,8 @@ module Fetch
               before_first_process_called = true
               before_first_process
             end
+
+            before_process(url)
 
             begin
               effective_url = res.effective_url || url
