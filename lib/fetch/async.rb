@@ -1,7 +1,9 @@
 module Fetch
   module Async
     def self.included(base)
-      base.define_callback :url, :process
+      base.define_callback :url,
+                           :before_first_process,
+                           :process
     end
 
     # Returns +true+.
@@ -14,6 +16,7 @@ module Fetch
       urls = Array(url)
 
       remaining_requests = urls.count
+      before_first_process_called = false
 
       urls.map do |url|
         request = Typhoeus::Request.new(
@@ -26,6 +29,11 @@ module Fetch
 
         request.on_complete do |res|
           if res.success?
+            unless before_first_process_called
+              before_first_process_called = true
+              before_first_process
+            end
+
             begin
               effective_url = res.effective_url || url
               process(res.body, url, effective_url)
