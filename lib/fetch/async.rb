@@ -4,18 +4,6 @@ module Fetch
       base.define_callback :url, :response
     end
 
-    # Method that implements the logic for handling the response retrieved from
-    # +#url+.
-    # Must be implemented to do async fetch.
-    #
-    #   def response
-    #     json = JSON.parse(body)
-    #     # do something with the JSON
-    #   end
-    def response
-      raise "#{self.class.name} must implement #response that handles response to do async fetch."
-    end
-
     # Returns +true+.
     def async?
       true
