@@ -267,8 +267,9 @@ end
 You can then call it in your tests:
 
 ```ruby
+user = User.find(123)
 fetcher = MockFetcher(:github, :user_info_fetch)
-fetcher.fetch
+fetcher.new(user).fetch
 ```
 
 This will run `UserInfoFetch` for `Github` with any callbacks you have set.
