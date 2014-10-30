@@ -13,7 +13,7 @@ module Fetchable
   #     fetches_with "MyFetch"
   #   end
   #
-  #   Product.find(2).fetch # => instance of MyFetch
+  #   Product.find(2).fetcher # => instance of MyFetch
   def fetcher
     @fetcher ||= self.class.fetcher.new(self)
   end
