@@ -7,7 +7,7 @@ module Sites
         "https://api.github.com/users/#{fetchable.login}"
       end
 
-      response do
+      response do |body|
         json = JSON.parse(body)
         
         fetchable.update_attribute :github_id, json["id"]

@@ -16,17 +16,6 @@ module Fetch
       raise "#{self.class.name} must implement #response that handles response to do async fetch."
     end
 
-    # Returns the current URL being processed; useful when fetching from
-    # multiple URLs.
-    attr_reader :current_url
-
-    # Returns the final URL in the request, e.g. after being redirected.
-    attr_reader :effective_url
-
-    # Returns the body of the response retrieved from the URL.
-    # To be used in +#response+.
-    attr_reader :body
-
     # Returns +true+.
     def async?
       true
@@ -50,10 +39,8 @@ module Fetch
         request.on_complete do |res|
           if res.success?
             begin
-              @current_url = url
-              @effective_url = res.effective_url || url
-              @body = res.body
-              response
+              effective_url = res.effective_url || url
+              response(res.body, url, effective_url)
             rescue => e
               failed e
             end
