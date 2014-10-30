@@ -22,6 +22,95 @@ Then run:
 $ bundle
 ```
 
+## Example
+
+In this example we will use Fetch to fetch user ids from various sites based
+on a user's login.
+
+### Fetchable
+
+In *app/models/user.rb*:
+
+```ruby
+class User < ActiveRecord::Base
+  include Fetchable
+  # When you do nothing more, it will fetch using UserFetcher
+end
+```
+
+### Fetcher
+
+In *lib/user_fetcher.rb*:
+
+```ruby
+class UserFetcher < Fetch::Base
+  namespace :sites
+
+  sources do
+    [:facebook, :github]
+  end
+
+  modules do
+    :user_info_fetch
+  end
+end
+```
+
+### Fetch modules
+
+In *lib/sites/facebook/user_info_fetch.rb*:
+
+```ruby
+module Sites
+  module Facebook
+    class UserInfoFetch < Fetch::Module
+      include Async
+
+      url do
+        "http://graph.facebook.com/#{fetchable.login}"
+      end
+
+      process do |body|
+        json = JSON.parse(body)
+        fetchable.update_attribute :facebook_id, json["id"]
+      end
+    end
+  end
+end
+```
+
+In *lib/sites/github/user_info_fetch.rb*:
+
+```ruby
+module Sites
+  module Github
+    class UserInfoFetch < Fetch::Module
+      include Async
+
+      url do
+        "https://api.github.com/users/#{fetchable.login}"
+      end
+
+      process do |body|
+        json = JSON.parse(body)
+        fetchable.update_attribute :github_id, json["id"]
+      end
+    end
+  end
+end
+```
+
+### Doing the fetch
+
+After everything is set up, you can activate the fetch:
+
+```ruby
+user = User.find(123)
+user.fetcher.fetch
+```
+
+This will do an asynchronous (parallel) fetch from the sites, Facebook and GitHub.
+
 ## Contributing
 
 Contributions are much appreciated. To contribute:
