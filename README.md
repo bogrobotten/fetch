@@ -243,6 +243,35 @@ class UserInfoFetch < Fetch::Module
 end
 ```
 
+## Testing
+
+You can create a mock fetcher for testing single fetch modules.
+In *test_helper.rb*:
+
+```ruby
+def MockFetcher(source_names, module_names)
+  Class.new(Fetch::Base) do
+    namespace :your_namespace
+
+    sources do
+      source_names
+    end
+
+    modules do
+      module_names
+    end
+  end
+end
+```
+
+You can then call it in your tests:
+
+```ruby
+fetcher = MockFetcher(:github, :user_info_fetch)
+fetcher.fetch
+```
+
+This will run `UserInfoFetch` for `Github` with any callbacks you have set.
 
 ## Contributing
 
