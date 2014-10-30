@@ -6,13 +6,18 @@ module Fetch
 
     private
 
+    # Check if a callback has been used.
+    def callback?(name)
+      self.class.callbacks[name].any?
+    end
+
     # Run specific callbacks.
     #
     #   run_callbacks_for(:before_fetch)
     #   run_callbacks_for(:progress, 12) # 12 percent done
-    def run_callbacks_for(callback, *args)
+    def run_callbacks_for(name, *args)
       results = []
-      self.class.callbacks[callback].each do |block|
+      self.class.callbacks[name].each do |block|
         results << instance_exec(*args, &block)
       end
       results.last
