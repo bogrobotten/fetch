@@ -69,8 +69,6 @@ In *lib/sites/facebook/user_info_fetch.rb*:
 module Sites
   module Facebook
     class UserInfoFetch < Fetch::Module
-      include Async
-
       url do
         "http://graph.facebook.com/#{fetchable.login}"
       end
@@ -90,8 +88,6 @@ In *lib/sites/github/user_info_fetch.rb*:
 module Sites
   module Github
     class UserInfoFetch < Fetch::Module
-      include Async
-
       url do
         "https://api.github.com/users/#{fetchable.login}"
       end
@@ -115,6 +111,138 @@ user.fetcher.fetch
 ```
 
 This will do an asynchronous (parallel) fetch from the sites, Facebook and GitHub.
+
+## Implementing fetch modules
+
+Fetch modules are the classes that contains the URLs and code for processing
+your calls to external services.
+
+A fetch module should contain either
+
+* `url do ... end` and `process do ... end` for async fetches
+
+or
+
+* `fetch do ... end` for non-async fetches
+
+### Async fetch modules
+
+An async fetch module contains at least two blocks: `url do ... end` and
+`process do ... end`. The `url` block should return one or more URLs to be
+fetched, and the `process` block contains the processing code for the response
+coming from the request of the URL.
+
+An example:
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  url do
+    "https://api.github.com/users/#{fetchable.login}"
+  end
+
+  process do |body|
+    # Do some processing of the response body.
+  end
+end
+```
+
+You can get more information about the response by adding more arguments to the
+`process` block:
+
+```ruby
+process do |body, url, effective_url|
+  # Do some processing.
+end
+```
+
+The `url` argument is useful if your `url` block returned more than one URL and
+you want to get information on which URL is currently being processed.
+
+The `effective_url` is the last URL redirected to. If no redirects occured,
+`effective_url` will be the same as `url`.
+
+### Non-async fetch modules
+
+If you want to define a fetch module that doesn't use asynchronous requests,
+you can define it using the `fetch` block:
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  fetch do
+    # Do some non-async fetching.
+  end
+end
+```
+
+### Conditional fetching
+
+You can specify whether the fetch module should be used when fetching, using
+the `fetch_if` block:
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  fetch_if do
+    # Specify whether the fetch module should be used
+  end
+end
+```
+
+
+### Callbacks in fetch modules
+
+Fetch modules have various callbacks that can be used for hooking into the
+lifecycle of the fetches. You can define multiple callbacks with the same name.
+
+#### 1. `before_fetch`
+
+The `before_fetch` callback is called right before the fetch is started.
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  before_fetch do
+    # Do something before the fetch
+  end
+end
+```
+
+#### 2. `before_first_process`
+
+The `before_first_process` callback is called right before processing the
+response. If you have multiple URLs, this is only called once.
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  before_first_process do
+    # Do something before the first process
+  end
+end
+```
+
+#### 3. `before_process`
+
+The `before_process` callback is similar to `before_first_process`, but is
+called before processing each response, if you have multiple URLs.
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  before_process do |url|
+    # Do something before the first process
+  end
+end
+```
+
+#### 4. `after_fetch`
+
+The `after_fetch` callback is called after the fetch is completed.
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  after_fetch do
+    # Do something after the fetch
+  end
+end
+```
+
 
 ## Contributing
 
