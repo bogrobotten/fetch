@@ -68,21 +68,17 @@ module Fetch
       hydra = Typhoeus::Hydra.new
 
       fetch_modules.each do |fetch_module|
-        if fetch_module.fetch?
-          fetch_module.before_fetch
-          if fetch_module.async?
-            fetch_module.requests do
-              fetch_module.after_fetch
-              update_progress(true)
-            end.each do |request|
-              hydra.queue(request)
-            end
-          else
-            fetch_module.fetch
+        fetch_module.before_fetch
+        if fetch_module.async?
+          fetch_module.requests do
             fetch_module.after_fetch
             update_progress(true)
+          end.each do |request|
+            hydra.queue(request)
           end
         else
+          fetch_module.fetch
+          fetch_module.after_fetch
           update_progress(true)
         end
       end
@@ -133,7 +129,7 @@ module Fetch
           Array(modules).map do |module_key|
             self.class.module_cache[source_key][module_key].try(:new, fetchable, source)
           end
-        end.flatten.compact
+        end.flatten.compact.select(&:fetch?)
       end
     end
 
