@@ -68,9 +68,7 @@ module Fetch
       hydra = Typhoeus::Hydra.new
 
       fetch_modules.each do |fetch_module|
-        if fetch_module.before_filter == false
-          update_progress(true)
-        else
+        if fetch_module.fetch?
           fetch_module.before_fetch
           if fetch_module.async?
             fetch_module.requests do
@@ -84,6 +82,8 @@ module Fetch
             fetch_module.after_fetch
             update_progress(true)
           end
+        else
+          update_progress(true)
         end
       end
 

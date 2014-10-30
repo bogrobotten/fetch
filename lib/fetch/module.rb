@@ -2,7 +2,7 @@ module Fetch
   class Module
     include Callbacks
 
-    define_callback :before_filter,
+    define_callback :fetch_if,
                     :fetch,
                     :before_fetch,
                     :after_fetch,
@@ -20,6 +20,13 @@ module Fetch
     # Initializes the fetch module with a fetchable.
     def initialize(fetchable, source)
       @fetchable, @source = fetchable, source
+    end
+
+    # Whether or not the module should be used when fetching.
+    # Set with `fetch_if do ... end`.
+    def fetch?
+      return true unless callback?(:fetch_if)
+      !!fetch_if
     end
 
     # Whether this module is an async fetch module.
