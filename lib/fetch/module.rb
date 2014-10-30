@@ -8,8 +8,6 @@ module Fetch
                     :after_fetch,
                     :failed
 
-    before_filter { true }
-
     # Makes it possible to include +Async+ directly in subclasses.
     Async = Fetch::Async
 
