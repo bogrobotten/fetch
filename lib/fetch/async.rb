@@ -7,9 +7,9 @@ module Fetch
                            :process
     end
 
-    # Returns +true+.
+    # Returns +true+ if a URL has been defined using `url do ... end`.
     def async?
-      true
+      callback?(:url)
     end
 
     # Async requests to be enqueued with +Typhoeus::Hydra+.

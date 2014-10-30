@@ -1,8 +1,6 @@
 module Sites
   module Github
     class UserInfoFetch < Fetch::Module
-      include Async
-
       url do
         "https://api.github.com/users/#{fetchable.login}"
       end

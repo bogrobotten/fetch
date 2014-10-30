@@ -1,8 +1,6 @@
 module Sites
   module Facebook
     class UserInfoFetch < Fetch::Module
-      include Async
-
       url do
         "http://graph.facebook.com/#{fetchable.login}"
       end

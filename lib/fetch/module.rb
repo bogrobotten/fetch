@@ -1,6 +1,7 @@
 module Fetch
   class Module
     include Callbacks
+    include Async
 
     define_callback :fetch_if,
                     :fetch,
@@ -27,12 +28,6 @@ module Fetch
     def fetch?
       return true unless callback?(:fetch_if)
       !!fetch_if
-    end
-
-    # Whether this module is an async fetch module.
-    # Is set to true when including +Fetch::Async+.
-    def async?
-      false
     end
 
     # Handle fetch failures.
