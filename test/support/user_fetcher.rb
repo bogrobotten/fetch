@@ -1,4 +1,4 @@
-class UserFetch < Fetch::Base
+class UserFetcher < Fetch::Base
   sources do
     [:facebook, :github, :some_other_site]
   end
