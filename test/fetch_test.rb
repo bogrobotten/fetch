@@ -10,7 +10,7 @@ class FetchTest < Minitest::Test
 
   def test_async_fetch
     user = User.find_by_login!("lassebunk")
-    user.fetcher.begin
+    user.fetcher.fetch
 
     assert_equal 662377014, user.facebook_id
     assert_equal 106146, user.github_id

@@ -32,7 +32,7 @@ module Fetch
     # Begin fetching.
     # Will run synchronous fetches first and async fetches afterwards.
     # Updates progress when each module finishes its fetch.
-    def begin
+    def fetch
       @total_count = fetch_modules.count
       @completed_count = 0
 
