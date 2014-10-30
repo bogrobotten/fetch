@@ -21,6 +21,19 @@ module Fetchable
     @fetcher ||= self.class.fetcher.new(self)
   end
 
+  # A unique key for this fetchable. By default it is comprised of the class
+  # name and id.
+  #
+  #   class Product < ActiveRecord::Base
+  #     include Fetchable
+  #   end
+  #
+  #   Product.find(123).fetch_key
+  #   # => "Product123"
+  def fetch_key
+    "#{self.class.name}#{id}"
+  end
+
   module ClassMethods
     # Defines which fetcher to use when fetching instances of this class.
     # Can be a class or string, which will be instantiated and returned from

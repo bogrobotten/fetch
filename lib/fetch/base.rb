@@ -55,6 +55,11 @@ module Fetch
       @fetchable = fetchable
     end
 
+    # Fetch key of the fetch, taken from the fetchable.
+    def fetch_key
+      fetchable.fetch_key
+    end
+
     # Begin fetching.
     # Will run synchronous fetches first and async fetches afterwards.
     # Updates progress when each module finishes its fetch.
