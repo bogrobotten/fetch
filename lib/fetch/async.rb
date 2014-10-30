@@ -13,7 +13,7 @@ module Fetch
     end
 
     # Async requests to be enqueued with +Typhoeus::Hydra+.
-    def request(&callback)
+    def requests(&callback)
       urls = Array(url)
 
       remaining_requests = urls.count

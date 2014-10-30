@@ -73,11 +73,12 @@ module Fetch
         else
           fetch_module.before_fetch
           if fetch_module.async?
-            request = fetch_module.request do
+            fetch_module.requests do
               fetch_module.after_fetch
               update_progress(true)
+            end.each do |request|
+              hydra.queue(request)
             end
-            Array(request).each { |request| hydra.queue request }
           else
             fetch_module.fetch
             fetch_module.after_fetch
