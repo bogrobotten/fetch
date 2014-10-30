@@ -32,8 +32,6 @@ $ bundle
 In this example we will use Fetch to fetch user ids from various sites based
 on a user's login.
 
-### Fetchable
-
 In *app/models/user.rb*:
 
 ```ruby
@@ -42,8 +40,6 @@ class User < ActiveRecord::Base
   # When you do nothing more, it will fetch using UserFetcher
 end
 ```
-
-### Fetcher
 
 In *lib/user_fetcher.rb*:
 
@@ -60,8 +56,6 @@ class UserFetcher < Fetch::Base
   end
 end
 ```
-
-### Fetch modules
 
 In *lib/sites/facebook/user_info_fetch.rb*:
 
@@ -101,8 +95,6 @@ module Sites
 end
 ```
 
-### Doing the fetch
-
 After everything is set up, you can activate the fetch:
 
 ```ruby
@@ -112,18 +104,20 @@ user.fetcher.fetch
 
 This will do an asynchronous (parallel) fetch from the sites, Facebook and GitHub.
 
-## Implementing fetch modules
+## Fetch modules
 
 Fetch modules are the classes that contains the URLs and code for processing
 your calls to external services.
 
 A fetch module should contain either
 
-* `url do ... end` and `process do ... end` for async fetches
+* `url do ... end` and `process do ... end` for async fetches. This is the
+  preferred method as you can do parallel fetches which makes your fetches run
+  faster.
 
 or
 
-* `fetch do ... end` for non-async fetches
+* `fetch do ... end` for non-async fetches.
 
 ### Async fetch modules
 
