@@ -5,7 +5,8 @@ module Fetch
     define_callback :before_filter,
                     :fetch,
                     :before_fetch,
-                    :after_fetch
+                    :after_fetch,
+                    :failed
 
     before_filter { true }
 
@@ -30,7 +31,7 @@ module Fetch
     # Can take either a message string or exception.
     # If given an exception, for example if a fetch module raises an exception,
     # it will raise the exception if +config.raise_on_error+ is set to true.
-    def failed(message_or_exception)
+    failed do |message_or_exception|
       case message_or_exception
       when Exception
         if Fetch.config.raise_on_error
