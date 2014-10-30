@@ -15,7 +15,7 @@ end
 
 module Fetch
   class << self
-    # Convenience method that returns +Fetch::Configuration+.
+    # Returns a configuration object.
     def config
       @config ||= Configuration.new
     end
