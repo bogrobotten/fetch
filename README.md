@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/lassebunk/fetch.png)](http://travis-ci.org/lassebunk/fetch)
+[![Build Status](https://secure.travis-ci.org/bogrobotten/fetch.png)](http://travis-ci.org/bogrobotten/fetch)
 
 # Fetch
 
