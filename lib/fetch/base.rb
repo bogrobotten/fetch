@@ -22,28 +22,6 @@ module Fetch
                     :after_fetch,
                     :progress
 
-    class << self
-      # Cached fetch source modules.
-      #
-      #   Fetch::Base.module_cache[:google][:search] # => FetchModules::Google::Search
-      #   Fetch::Base.module_cache[:google][:nonexistent] # => nil
-      def module_cache
-        @module_cache ||= Hash.new do |source_hash, source_key|
-          source_hash[source_key] = Hash.new do |module_hash, module_key|
-            module_hash[module_key] = constantize_fetch_module(source_key, module_key)
-          end
-        end
-      end
-
-      private
-
-      def constantize_fetch_module(source_key, module_key)
-        Fetch.config.namespaces.map do |namespace|
-          "#{namespace}/#{source_key}/#{module_key}".camelize.safe_constantize
-        end.compact.first
-      end
-    end
-
     attr_reader :fetchable
 
     def initialize(fetchable)
@@ -88,24 +66,42 @@ module Fetch
 
     private
 
-      def update_progress(one_completed = false)
-        @completed_count += 1 if one_completed
-        progress(progress_percent)
-      end
-
-      def progress_percent
-        return 100 if @total_count == 0
-        ((@completed_count.to_f / @total_count) * 100).to_i
-      end
-
-      def fetch_modules
-        @fetch_modules ||= begin
-          Array(sources).map do |source_key|
-            Array(modules).map do |module_key|
-              self.class.module_cache[source_key][module_key].try(:new, fetchable)
-            end
-          end.flatten.compact
+    # Cached fetch source modules.
+    #
+    #   Fetch::Base.module_cache[:google][:search] # => FetchModules::Google::Search
+    #   Fetch::Base.module_cache[:google][:nonexistent] # => nil
+    def self.module_cache
+      @module_cache ||= Hash.new do |source_hash, source_key|
+        source_hash[source_key] = Hash.new do |module_hash, module_key|
+          module_hash[module_key] = constantize_fetch_module(source_key, module_key)
         end
       end
+    end
+
+    def self.constantize_fetch_module(source_key, module_key)
+      Fetch.config.namespaces.map do |namespace|
+        "#{namespace}/#{source_key}/#{module_key}".camelize.safe_constantize
+      end.compact.first
+    end
+
+    def update_progress(one_completed = false)
+      @completed_count += 1 if one_completed
+      progress(progress_percent)
+    end
+
+    def progress_percent
+      return 100 if @total_count == 0
+      ((@completed_count.to_f / @total_count) * 100).to_i
+    end
+
+    def fetch_modules
+      @fetch_modules ||= begin
+        Array(sources).map do |source_key|
+          Array(modules).map do |module_key|
+            self.class.module_cache[source_key][module_key].try(:new, fetchable)
+          end
+        end.flatten.compact
+      end
+    end
   end
 end
