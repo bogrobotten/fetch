@@ -87,19 +87,19 @@ module Fetch
 
       fetch_modules.each do |fetch_module|
         if fetch_module.before_filter == false
-          update_progress true
+          update_progress(true)
         else
           fetch_module.before_fetch
           if fetch_module.async?
             request = fetch_module.request do
               fetch_module.after_fetch
-              update_progress true
+              update_progress(true)
             end
             Array(request).each { |request| hydra.queue request }
           else
             fetch_module.fetch
             fetch_module.after_fetch
-            update_progress true
+            update_progress(true)
           end
         end
       end
