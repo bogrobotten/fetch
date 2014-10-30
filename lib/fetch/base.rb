@@ -101,11 +101,22 @@ module Fetch
     # Returns an array on instantiated fetch modules.
     def fetch_modules
       @fetch_modules ||= begin
-        Array(sources).map do |source_key|
+        Array(sources).map do |source|
+          source_key = extract_source_key(source)
           Array(modules).map do |module_key|
             self.class.module_cache[source_key][module_key].try(:new, fetchable)
           end
         end.flatten.compact
+      end
+    end
+
+    # Extracts a source key from the given source.
+    # +source+ can be a +String+, +Symbol+, or an instance that responds to +fetch_key+.
+    def extract_source_key(source)
+      case source
+      when Symbol then source
+      when String then source.to_sym
+      else source.fetch_key.to_sym
       end
     end
   end
