@@ -1,6 +1,11 @@
 class UserFetch < Fetch::Base
-  fetches_from [:facebook, :github, :some_other_site]
-  fetches_with :user_info_fetch
+  sources do
+    [:facebook, :github, :some_other_site]
+  end
+  
+  modules do
+    :user_info_fetch
+  end
 
   before_fetch do
     puts "before fetch"

@@ -16,36 +16,13 @@ module Fetch
     #   progress do |progress|
     #     # update progress in percent
     #   end
-    define_callback :before_fetch,
+    define_callback :sources,
+                    :modules,
+                    :before_fetch,
                     :after_fetch,
                     :progress
 
     class << self
-      # Array of fetch module keys to be used when fetching.
-      # Can be set using +fetches_with+.
-      def fetch_modules
-        @fetch_modules ||= []
-      end
-
-      # Sets which fetch modules to use when fetching.
-      #
-      #   fetches_with :user_info_fetch, :avatar_fetch
-      def fetches_with(*module_keys)
-        @fetch_modules = module_keys
-      end
-
-      # Array of fetch sources to use when fetching.
-      def fetch_sources
-        @fetch_sources ||= []
-      end
-
-      # Sets which fetch sources to use when fetching.
-      #
-      #   fetches_from [:github, :twitter, :gravatar]
-      def fetches_from(proc_or_array)
-        @fetch_sources = proc_or_array
-      end
-
       # Cached fetch source modules.
       #
       #   Fetch::Base.module_cache[:google][:search] # => FetchModules::Google::Search
@@ -121,21 +98,10 @@ module Fetch
         ((@completed_count.to_f / @total_count) * 100).to_i
       end
 
-      def sources
-        @sources ||= begin
-          sources = self.class.fetch_sources
-          case sources
-          when Array then sources
-          when Proc then instance_eval(&sources)
-          else raise "Unknown fetch sources #{sources.inspect}"
-          end
-        end
-      end
-
       def fetch_modules
         @fetch_modules ||= begin
-          sources.map do |source_key|
-            self.class.fetch_modules.map do |module_key|
+          Array(sources).map do |source_key|
+            Array(modules).map do |module_key|
               self.class.module_cache[source_key][module_key].try(:new, fetchable)
             end
           end.flatten.compact
