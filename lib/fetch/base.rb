@@ -116,7 +116,9 @@ module Fetch
         elsif b.empty? then a
         else a.product(b)
         end
-      end.map(&:flatten)
+      end.map do |path|
+        path.join("/")
+      end
     end
   end
 end

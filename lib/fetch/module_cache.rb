@@ -8,7 +8,6 @@ module Fetch
   #   # => nil
   class ModuleCache
     def fetch(path)
-      path = path.join("/")
       store[path]
     end
 
