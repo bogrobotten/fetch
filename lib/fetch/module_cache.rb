@@ -9,14 +9,16 @@ module Fetch
   class ModuleCache
     def fetch(path)
       path = path.join("/")
-      store[path] ||= constantize(path)
+      store[path]
     end
 
     private
 
     # The internal cache store.
     def store
-      @store ||= {}
+      @store ||= Hash.new do |store, path|
+        store[path] = constantize(path)
+      end
     end
 
     # Constantizes a fetch module from the given +path+.
