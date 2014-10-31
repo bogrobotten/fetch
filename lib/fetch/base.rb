@@ -107,6 +107,8 @@ module Fetch
       end
     end
 
+    # Returns an array of all module paths collected from namespaces, sources
+    # and modules.
     def module_paths
       [Array(namespaces), Array(sources), Array(modules)].inject do |a, b|
         if a.empty? then b
