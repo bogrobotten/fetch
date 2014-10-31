@@ -2,6 +2,7 @@ module Fetch
   module Async
     def self.included(base)
       base.define_callback :url,
+                           :timeout,
                            :user_agent,
                            :headers,
                            :before_first_process,
@@ -25,7 +26,7 @@ module Fetch
         request = Typhoeus::Request.new(
           url,
           followlocation: true,
-          timeout: Fetch.config.timeout,
+          timeout: (timeout || Fetch.config.timeout),
           forbid_reuse: true,
           headers: { "User-Agent" => (user_agent || Fetch.config.user_agent) }.merge(headers || {})
         )
