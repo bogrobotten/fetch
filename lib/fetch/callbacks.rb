@@ -18,7 +18,7 @@ module Fetch
     def run_callbacks_for(name, *args)
       self.class.callbacks[name].map do |block|
         instance_exec(*args, &block)
-      end.last
+      end
     end
 
     module ClassMethods
@@ -35,7 +35,7 @@ module Fetch
           end
 
           define_method name do |*args|
-            run_callbacks_for(name, *args)
+            run_callbacks_for(name, *args).last
           end
         end
       end
