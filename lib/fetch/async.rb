@@ -3,6 +3,7 @@ module Fetch
     def self.included(base)
       base.define_callback :url,
                            :user_agent,
+                           :headers,
                            :before_first_process,
                            :before_process,
                            :process
@@ -26,7 +27,7 @@ module Fetch
           followlocation: true,
           timeout: Fetch.config.timeout,
           forbid_reuse: true,
-          headers: { "User-Agent" => (user_agent || Fetch.config.user_agent) }
+          headers: { "User-Agent" => (user_agent || Fetch.config.user_agent) }.merge(headers || {})
         )
 
         request.on_complete do |res|
