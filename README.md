@@ -121,6 +121,8 @@ or
 
 ### Async fetch modules
 
+#### Simple async fetching
+
 An async fetch module contains at least two blocks: `url do ... end` and
 `process do ... end`. The `url` block should return one or more URLs to be
 fetched, and the `process` block contains the processing code for the response
@@ -154,6 +156,23 @@ you want to get information on which URL is currently being processed.
 
 The `effective_url` is the last URL redirected to. If no redirects occured,
 `effective_url` will be the same as `url`.
+
+#### Async fetching with more control
+
+If you need to do more advanced requests, like `POST`, you can get access to a
+request object:
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  request do |req|
+    req.method = :post
+    req.body = { some_param: "some value" }
+    req.process do |body|
+      # Do some processing
+    end
+  end
+end
+```
 
 ### Non-async fetch modules
 

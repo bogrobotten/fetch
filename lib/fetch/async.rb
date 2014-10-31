@@ -1,7 +1,8 @@
 module Fetch
   module Async
     def self.included(base)
-      base.define_callback :url,
+      base.define_callback :request,
+                           :url,
                            :timeout,
                            :user_agent,
                            :headers,
@@ -12,12 +13,18 @@ module Fetch
 
     # Returns +true+ if a URL has been defined using `url do ... end`.
     def async?
-      callback?(:url)
+      callback?(:request) || callback?(:url)
     end
 
     # Async requests to be enqueued with +Typhoeus::Hydra+.
     def requests(&callback)
       requests = []
+
+      if callback?(:request)
+        req = Request.new
+        request(req)
+        requests << req
+      end
 
       if callback?(:url)
         url_requests = Array(url).map do |url|
@@ -39,6 +46,8 @@ module Fetch
       requests.map do |req|
         request = Typhoeus::Request.new(
           req.url,
+          method: req.method,
+          body: req.body,
           followlocation: req.follow_redirects,
           timeout: req.timeout,
           forbid_reuse: true,

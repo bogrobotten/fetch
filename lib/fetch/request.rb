@@ -35,6 +35,20 @@ module Fetch
 
     attr_writer :follow_redirects
 
+    # The method to be used for the request.
+    def method
+      @method || :get
+    end
+
+    attr_writer :method
+
+    # The post body to be sent with the request.
+    def body
+      @body ||= {}
+    end
+
+    attr_writer :body
+
     # The timeout for the request.
     # Default: Taken from +Fetch.config.timeout+
     def timeout
