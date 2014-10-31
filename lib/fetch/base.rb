@@ -16,7 +16,8 @@ module Fetch
     #   progress do |progress|
     #     # update progress in percent
     #   end
-    define_callback :sources,
+    define_callback :namespaces,
+                    :sources,
                     :modules,
                     :before_fetch,
                     :after_fetch,
@@ -76,48 +77,12 @@ module Fetch
       base.instance_variable_set(:@namespaces, @namespaces.dup) unless @namespaces.nil?
     end
 
-    # Sets or returns namespaces in which to look for fetch modules.
-    # If namespaces haven't been set on the particular fetcher, default
-    # namespaces from the Fetch configuration will be returned.
-    #
-    #   namespaces :sites, :merchants
-    #   namespaces [:sites, :merchants]
-    #
-    #   namespaces # => [:sites, :merchants]
-    def self.namespaces(*names)
-      if names.any?
-        @namespaces = names.flatten
-      else
-        @namespaces || Fetch.config.namespaces
-      end
-    end
-
     # Convenience method for setting a single namespace.
     #
     #   namespace :sites
     #   namespaces # => [:sites]
     def self.namespace(name)
       namespaces(name)
-    end
-
-    # Cached fetch source modules.
-    #
-    #   Fetch::Base.module_cache[:google][:search] # => FetchModules::Google::Search
-    #   Fetch::Base.module_cache[:google][:nonexistent] # => nil
-    def self.module_cache
-      @module_cache ||= Hash.new do |source_hash, source_key|
-        source_hash[source_key] = Hash.new do |module_hash, module_key|
-          module_hash[module_key] = constantize_fetch_module(source_key, module_key)
-        end
-      end
-    end
-
-    # Constantizes a fetch module from +source_key+ and +module_key+.
-    def self.constantize_fetch_module(source_key, module_key)
-      namespaces.map do |namespace|
-        klass = Util.camelize("#{namespace}/#{source_key}/#{module_key}")
-        Util.safe_constantize(klass)
-      end.compact.first
     end
 
     # Updates progress.
@@ -135,10 +100,12 @@ module Fetch
     # Returns an array on instantiated fetch modules.
     def fetch_modules
       @fetch_modules ||= begin
-        Array(sources).map do |source|
-          source_key = extract_source_key(source)
-          Array(modules).map do |module_key|
-            self.class.module_cache[source_key][module_key].try(:new, fetchable, source)
+        Array(namespaces).map do |namespace|
+          Array(sources).map do |source|
+            source_key = extract_source_key(source)
+            Array(modules).map do |module_key|
+              Fetch.module_cache.get(namespace, source_key, module_key).try(:new, fetchable, source)
+            end
           end
         end.flatten.compact.select(&:fetch?)
       end

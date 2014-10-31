@@ -8,6 +8,7 @@ require "typhoeus"
   base
   request
   async
+  module_cache
   module
   configuration
   progress
@@ -31,6 +32,10 @@ module Fetch
     #   end
     def configure(&block)
       yield config
+    end
+
+    def module_cache
+      @module_cache ||= ModuleCache.new
     end
   end
 end
