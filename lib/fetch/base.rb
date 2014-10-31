@@ -74,10 +74,12 @@ module Fetch
       modules.each do |fetch_module|
         fetch_module.before_fetch
         if fetch_module.async?
-          fetch_module.typhoeus_requests do
+          requests = fetch_module.typhoeus_requests do
             fetch_module.after_fetch
             update_progress(true)
-          end.each do |request|
+          end
+
+          requests.each do |request|
             hydra.queue(request)
           end
         else
