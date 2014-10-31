@@ -29,7 +29,7 @@ module Fetch
         request = Typhoeus::Request.new(
           req.url,
           method: req.method,
-          body: req.body,
+          body: req.body_string,
           followlocation: req.follow_redirects,
           timeout: req.timeout,
           forbid_reuse: true,

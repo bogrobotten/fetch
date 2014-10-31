@@ -1,3 +1,5 @@
+require "cgi"
+
 module Fetch
   # A request to be completed with Typhoeus.
   class Request
@@ -48,6 +50,11 @@ module Fetch
     end
 
     attr_writer :body
+
+    # The post body represented as a string.
+    def body_string
+      body.map { |k, v| "#{CGI::escape(k.to_s)}=#{CGI::escape(v.to_s)}" }.join("&")
+    end
 
     # The timeout for the request.
     # Default: Taken from +Fetch.config.timeout+
