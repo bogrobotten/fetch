@@ -9,9 +9,6 @@ module Fetch
                     :after_fetch,
                     :failed
 
-    # Makes it possible to include +Async+ directly in subclasses.
-    Async = Fetch::Async
-
     # The object being fetched.
     attr_reader :fetchable
 
