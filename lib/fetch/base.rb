@@ -100,14 +100,11 @@ module Fetch
     # Returns an array on instantiated fetch modules.
     def fetch_modules
       @fetch_modules ||= begin
-        fetch_klasses.map { |klass| klass.new(fetchable) }.select(&:fetch?)
+        module_paths.map do |path|
+          klass = Fetch.module_cache.fetch(path)
+          klass.new(fetchable) if klass
+        end.compact
       end
-    end
-
-    def fetch_klasses
-      @fetch_klasses ||= module_paths.map do |path|
-        Fetch.module_cache.fetch(path)
-      end.compact
     end
 
     def module_paths
