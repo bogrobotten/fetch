@@ -100,25 +100,23 @@ module Fetch
     # Returns an array on instantiated fetch modules.
     def fetch_modules
       @fetch_modules ||= begin
-        Array(namespaces).map do |namespace|
-          Array(sources).map do |source|
-            source_key = extract_source_key(source)
-            Array(modules).map do |module_key|
-              Fetch.module_cache.fetch([namespace, source_key, module_key]).try(:new, fetchable, source)
-            end
-          end
-        end.flatten.compact.select(&:fetch?)
+        fetch_klasses.map { |klass| klass.new(fetchable) }.select(&:fetch?)
       end
     end
 
-    # Extracts a source key from the given source.
-    # +source+ can be a +String+, +Symbol+, or an instance that responds to +fetch_key+.
-    def extract_source_key(source)
-      case source
-      when Symbol then source
-      when String then source.to_sym
-      else source.fetch_key.to_sym
-      end
+    def fetch_klasses
+      @fetch_klasses ||= module_paths.map do |path|
+        Fetch.module_cache.fetch(path)
+      end.compact
+    end
+
+    def module_paths
+      [Array(namespaces), Array(sources), Array(modules)].inject do |a, b|
+        if a.empty? then b
+        elsif b.empty? then a
+        else a.product(b)
+        end
+      end.map(&:flatten)
     end
   end
 end
