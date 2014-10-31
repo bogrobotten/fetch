@@ -13,6 +13,7 @@ class FetchTest < Minitest::Test
 
     assert_equal 662377014, user.facebook_id
     assert_equal 106146, user.github_id
+    assert_includes user.github_repos, "gretel"
     assert_equal 1234, user.some_other_id
   end
 end

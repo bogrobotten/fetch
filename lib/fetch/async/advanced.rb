@@ -2,22 +2,37 @@ module Fetch
   module Async
     module Advanced
       def self.included(base)
-        base.define_callback :request
+        base.extend ClassMethods
       end
 
-      # Returns +true+ if a URL has been defined using `url do ... end`.
+      # Returns +true+ if any requests were defined.
       def async?
-        super || callback?(:request)
+        super || self.class.requests.any?
       end
 
       # Requests to be made.
       def requests
-        if callback?(:request)
+        super + self.class.requests.map do |block|
           req = Request.new
-          request(req)
-          super + [req]
-        else
-          super
+          instance_exec req, &block
+          req
+        end
+      end
+
+      module ClassMethods
+        # Array of request blocks.
+        def requests
+          @requests ||= []
+        end
+
+        # Defines a new request block.
+        #
+        #   request do |req|
+        #     req.url = "http://www.google.com"
+        #     req.method = :post
+        #   end
+        def request(&block)
+          requests << block
         end
       end
     end

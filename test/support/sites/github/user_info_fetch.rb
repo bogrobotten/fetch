@@ -1,14 +1,20 @@
 module Sites
   module Github
     class UserInfoFetch < Fetch::Module
-      url do
-        "https://api.github.com/users/#{fetchable.login}"
+      request do |req|
+        req.url = "https://api.github.com/users/#{fetchable.login}"
+        req.process do |body|
+          json = JSON.parse(body)
+          fetchable.update_attribute :github_id, json["id"]
+        end
       end
 
-      process do |body|
-        json = JSON.parse(body)
-        
-        fetchable.update_attribute :github_id, json["id"]
+      request do |req|
+        req.url = "https://api.github.com/users/#{fetchable.login}/repos"
+        req.process do |body|
+          json = JSON.parse(body)
+          fetchable.update_attribute :github_repos, json.map { |r| r["name"] }
+        end
       end
     end
   end
