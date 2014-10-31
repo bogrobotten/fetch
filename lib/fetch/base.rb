@@ -16,30 +16,53 @@ module Fetch
     #   progress do |progress|
     #     # update progress in percent
     #   end
-    define_callback :namespaces,
-                    :sources,
-                    :modules,
-                    :before_fetch,
+    define_callback :before_fetch,
                     :after_fetch,
                     :progress
 
+    # Sets the fetch modules to be used when fetching.
+    # If you supply a block, it will be evaluated in context of the fetcher.
+    #
+    #   class SomeFetcher < Fetch::Base
+    #     modules Twitter::UserFetch,
+    #             Github::UserFetch
+    #   end
+    #
+    #   class SomeFetcher < Fetch::Base
+    #     modules do
+    #       # Return modules after doing something
+    #       # in the instance of the class.
+    #     end
+    #   end
+    def self.modules(*modules, &block)
+      if modules.any?
+        @modules = modules.flatten
+      elsif block_given?
+        @modules = block
+      else
+        @modules
+      end
+    end
+
     attr_reader :fetchable
 
-    # Initialize the fetcher with a fetchable instance.
-    def initialize(fetchable)
+    # Initialize the fetcher with an optional fetchable instance.
+    def initialize(fetchable = nil)
       @fetchable = fetchable
     end
 
     # Fetch key of the fetch, taken from the fetchable.
     def fetch_key
-      fetchable.fetch_key
+      fetchable.fetch_key if fetchable
     end
 
     # Begin fetching.
     # Will run synchronous fetches first and async fetches afterwards.
     # Updates progress when each module finishes its fetch.
     def fetch
-      @total_count = fetch_modules.count
+      modules = instantiate_modules
+
+      @total_count = modules.count
       @completed_count = 0
 
       update_progress
@@ -48,7 +71,7 @@ module Fetch
 
       hydra = Typhoeus::Hydra.new
 
-      fetch_modules.each do |fetch_module|
+      modules.each do |fetch_module|
         fetch_module.before_fetch
         if fetch_module.async?
           fetch_module.typhoeus_requests do
@@ -72,17 +95,15 @@ module Fetch
 
     private
 
-    def self.inherited(base)
-      super
-      base.instance_variable_set(:@namespaces, @namespaces.dup) unless @namespaces.nil?
+    # Array of instantiated fetch modules.
+    def instantiate_modules
+      module_klasses.map { |m| m.new(fetchable) }
     end
 
-    # Convenience method for setting a single namespace.
-    #
-    #   namespace :sites
-    #   namespaces # => [:sites]
-    def self.namespace(name)
-      namespaces(name)
+    def module_klasses
+      klasses = self.class.modules
+      klasses = instance_eval(&klasses) if klasses.is_a?(Proc)
+      klasses
     end
 
     # Updates progress.
@@ -97,27 +118,5 @@ module Fetch
       ((@completed_count.to_f / @total_count) * 100).to_i
     end
 
-    # Returns an array on instantiated fetch modules.
-    def fetch_modules
-      @fetch_modules ||= begin
-        module_paths.map do |path|
-          klass = Fetch.module_cache.fetch(path)
-          klass.new(fetchable) if klass
-        end.compact
-      end
-    end
-
-    # Returns an array of all module paths collected from namespaces, sources
-    # and modules.
-    def module_paths
-      [Array(namespaces), Array(sources), Array(modules)].inject do |a, b|
-        if a.empty? then b
-        elsif b.empty? then a
-        else a.product(b)
-        end
-      end.map do |path|
-        path.join("/")
-      end
-    end
   end
 end

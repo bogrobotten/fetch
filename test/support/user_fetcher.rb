@@ -1,15 +1,7 @@
 class UserFetcher < Fetch::Base
-  namespaces do
-    :sites
-  end
-
-  sources do
-    [:facebook, :github, :some_other_site]
-  end
-  
-  modules do
-    :user_info_fetch
-  end
+  modules Sites::Github::UserInfoFetch,
+          Sites::Facebook::UserInfoFetch,
+          Sites::SomeOtherSite::UserInfoFetch
 
   before_fetch do
     puts "before fetch"
