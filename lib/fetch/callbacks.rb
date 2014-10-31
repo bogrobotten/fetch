@@ -16,11 +16,9 @@ module Fetch
     #   run_callbacks_for(:before_fetch)
     #   run_callbacks_for(:progress, 12) # 12 percent done
     def run_callbacks_for(name, *args)
-      results = []
-      self.class.callbacks[name].each do |block|
-        results << instance_exec(*args, &block)
-      end
-      results.last
+      self.class.callbacks[name].map do |block|
+        instance_exec(*args, &block)
+      end.last
     end
 
     module ClassMethods
