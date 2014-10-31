@@ -62,10 +62,10 @@ module Fetch
     def fetch
       modules = instantiate_modules
 
-      @total_count = modules.count
-      @completed_count = 0
+      total = modules.count
+      done = 0
 
-      update_progress
+      update_progress(total, done)
       before_fetch
       fetchable.before_fetch
 
@@ -76,7 +76,7 @@ module Fetch
         if fetch_module.async?
           requests = fetch_module.typhoeus_requests do
             fetch_module.after_fetch
-            update_progress(true)
+            update_progress(total, done += 1)
           end
 
           requests.each do |request|
@@ -85,7 +85,7 @@ module Fetch
         else
           fetch_module.fetch
           fetch_module.after_fetch
-          update_progress(true)
+          update_progress(total, done += 1)
         end
       end
 
@@ -108,17 +108,10 @@ module Fetch
       klasses
     end
 
-    # Updates progress.
-    def update_progress(one_completed = false)
-      @completed_count += 1 if one_completed
-      progress(progress_percent)
+    # Updates progress with a percentage calculated from +total+ and +done+.
+    def update_progress(total, done)
+      percentage = total.zero? ? 100 : ((done.to_f / total) * 100).to_i
+      progress(percentage)
     end
-
-    # Returns the fetch progress in percent.
-    def progress_percent
-      return 100 if @total_count == 0
-      ((@completed_count.to_f / @total_count) * 100).to_i
-    end
-
   end
 end
