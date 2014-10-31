@@ -22,5 +22,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "activerecord"
   s.add_development_dependency "json"
   s.add_development_dependency "minitest", ">= 5.4"
+  s.add_development_dependency "webmock",  ">= 1.20"
   s.add_development_dependency "rake"
 end
