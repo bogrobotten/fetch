@@ -1,33 +1,27 @@
 module Fetch
-  # Caches fetch modules.
+  # Caches fetch module classes.
   #
-  #   Fetch::ModuleCache[:google][:search] # => FetchModules::Google::Search
-  #   Fetch::ModuleCache[:google][:nonexistent] # => nil
+  #   Fetch.module_cache.fetch("fetch_modules/github/user_info_fetch")
+  #   # => FetchModules::Github::UserInfoFetch
+  #
+  #   Fetch.module_cache.fetch("some/nonexistent/module")
+  #   # => nil
   class ModuleCache
-    def get(namespace, source_key, module_key)
-      store[namespace][source_key][module_key]
+    def fetch(path)
+      path = path.join("/")
+      store[path] ||= constantize(path)
     end
 
     private
 
-    # The internal cache.
-    #
-    #   cache = Fetch::ModuleCache.new
-    #   cache.store[:some_namespace][:some_source_key][:some_module_key]
-    #   # => SomeFetchModule
+    # The internal cache store.
     def store
-      @cache ||= Hash.new do |namespace_hash, namespace_key|
-        namespace_hash[namespace_key] = Hash.new do |source_hash, source_key|
-          source_hash[source_key] = Hash.new do |module_hash, module_key|
-            module_hash[module_key] = constantize_fetch_module(namespace_key, source_key, module_key)
-          end
-        end
-      end
+      @store ||= {}
     end
 
-    # Constantizes a fetch module from +source_key+ and +module_key+.
-    def constantize_fetch_module(namespace, source_key, module_key)
-      klass = Util.camelize("#{namespace}/#{source_key}/#{module_key}")
+    # Constantizes a fetch module from the given +path+.
+    def constantize(path)
+      klass = Util.camelize(path)
       Util.safe_constantize(klass)
     end
   end
