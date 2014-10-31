@@ -1,45 +1,27 @@
+require "fetch/async/simple"
+require "fetch/async/advanced"
+
 module Fetch
   module Async
     def self.included(base)
-      base.define_callback :request,
-                           :url,
-                           :timeout,
-                           :user_agent,
-                           :headers,
-                           :before_first_process,
-                           :before_process,
-                           :process
+      base.define_callback :before_first_process,
+                           :before_process
+      base.send :include, Simple
+      base.send :include, Advanced
     end
 
-    # Returns +true+ if a URL has been defined using `url do ... end`.
+    # Whether this is an async request.
     def async?
-      callback?(:request) || callback?(:url)
+      false
+    end
+
+    # Requests to be made.
+    def requests
+      []
     end
 
     # Async requests to be enqueued with +Typhoeus::Hydra+.
-    def requests(&callback)
-      requests = []
-
-      if callback?(:request)
-        req = Request.new
-        request(req)
-        requests << req
-      end
-
-      if callback?(:url)
-        url_requests = Array(url).map do |url|
-          req = Request.new(url)
-          req.timeout    = timeout if callback?(:timeout)
-          req.user_agent = user_agent if callback?(:user_agent)
-          req.headers.merge!(headers) if callback?(:headers)
-          req.process do |body, url, final_url|
-            process(body, url, final_url)
-          end
-          req
-        end
-        requests.concat url_requests
-      end
-
+    def typhoeus_requests(&callback)
       remaining_requests = requests.count
       before_first_process_called = false
 
