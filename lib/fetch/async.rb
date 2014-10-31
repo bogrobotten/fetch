@@ -17,18 +17,32 @@ module Fetch
 
     # Async requests to be enqueued with +Typhoeus::Hydra+.
     def requests(&callback)
-      urls = Array(url)
+      requests = []
 
-      remaining_requests = urls.count
+      if callback?(:url)
+        url_requests = Array(url).map do |url|
+          req = Request.new(url)
+          req.timeout    = timeout if callback?(:timeout)
+          req.user_agent = user_agent if callback?(:user_agent)
+          req.headers.merge!(headers) if callback?(:headers)
+          req.process do |body, url, final_url|
+            process(body, url, final_url)
+          end
+          req
+        end
+        requests.concat url_requests
+      end
+
+      remaining_requests = requests.count
       before_first_process_called = false
 
-      urls.map do |url|
+      requests.map do |req|
         request = Typhoeus::Request.new(
-          url,
-          followlocation: true,
-          timeout: (timeout || Fetch.config.timeout),
+          req.url,
+          followlocation: req.follow_redirects,
+          timeout: req.timeout,
           forbid_reuse: true,
-          headers: { "User-Agent" => (user_agent || Fetch.config.user_agent) }.merge(headers || {})
+          headers: req.headers
         )
 
         request.on_complete do |res|
@@ -41,8 +55,8 @@ module Fetch
             before_process(url)
 
             begin
-              effective_url = res.effective_url || url
-              process(res.body, url, effective_url)
+              effective_url = res.effective_url || req.url
+              req.process.call(res.body, req.url, effective_url)
             rescue => e
               failed e
             end

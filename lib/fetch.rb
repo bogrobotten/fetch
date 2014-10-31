@@ -6,6 +6,7 @@ require "typhoeus"
   util
   callbacks
   base
+  request
   async
   module
   configuration
