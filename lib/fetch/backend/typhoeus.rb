@@ -31,7 +31,7 @@ module Fetch
           end
 
           request.on_failure do |res|
-            req.failed!(res.code)
+            req.failed!(res.code, req.url)
             progress.call
           end
 

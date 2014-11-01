@@ -365,8 +365,8 @@ class FetchTest < Minitest::Test
     mod = Class.new(Fetch::Module) do
       request do |req|
         req.url = "http://test.com/one"
-        req.failure do |code|
-          actions << "handled error #{code}"
+        req.failure do |code, url|
+          actions << "handled error #{code} from #{url}"
         end
         req.process do |body|
           actions << "body: #{body}"
@@ -374,7 +374,7 @@ class FetchTest < Minitest::Test
       end
     end
     MockFetcher(mod).new.fetch
-    assert_equal ["handled error 500"], actions
+    assert_equal ["handled error 500 from http://test.com/one"], actions
   end
 
   def test_http_failure_scope_handled_in_request
@@ -383,8 +383,8 @@ class FetchTest < Minitest::Test
     mod = Class.new(Fetch::Module) do
       request do |req|
         req.url = "http://test.com/one"
-        req.failure do |code|
-          actions << "handled error #{code} (#{some_instance_method})"
+        req.failure do |code, url|
+          actions << "handled error #{code} from #{url} (#{some_instance_method})"
         end
         req.process do |body|
           actions << "body: #{body}"
@@ -396,7 +396,7 @@ class FetchTest < Minitest::Test
       end
     end
     MockFetcher(mod).new.fetch
-    assert_equal ["handled error 500 (it worked)"], actions
+    assert_equal ["handled error 500 from http://test.com/one (it worked)"], actions
   end
 
   def test_http_failure_handled_in_module
@@ -409,12 +409,12 @@ class FetchTest < Minitest::Test
           actions << "body: #{body}"
         end
       end
-      failure do |code|
-        actions << "handled error #{code}"
+      failure do |code, url|
+        actions << "handled error #{code} from #{url}"
       end
     end
     MockFetcher(mod).new.fetch
-    assert_equal ["handled error 500"], actions
+    assert_equal ["handled error 500 from http://test.com/one"], actions
   end
 
   def test_http_failure_scope_handled_in_module
@@ -427,15 +427,15 @@ class FetchTest < Minitest::Test
           actions << "body: #{body}"
         end
       end
-      failure do |code|
-        actions << "handled error #{code} (#{some_instance_method})"
+      failure do |code, url|
+        actions << "handled error #{code} from #{url} (#{some_instance_method})"
       end
       def some_instance_method
         "it worked"
       end
     end
     MockFetcher(mod).new.fetch
-    assert_equal ["handled error 500 (it worked)"], actions
+    assert_equal ["handled error 500 from http://test.com/one (it worked)"], actions
   end
 
   def test_unhandled_process_error

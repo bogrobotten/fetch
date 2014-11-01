@@ -133,8 +133,8 @@ module Fetch
     end
 
     # Runs the failure callback.
-    def failed!(code)
-      @failure_callback.call(code) if @failure_callback
+    def failed!(code, url)
+      @failure_callback.call(code, url) if @failure_callback
     end
 
     # Sets the callback to be run if the processing fails due to an exception.

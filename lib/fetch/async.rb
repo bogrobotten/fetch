@@ -11,7 +11,7 @@ module Fetch
         Request.new.tap do |req|
           req.before_process { before_process } if callback?(:before_process)
           req.after_process { after_process } if callback?(:after_process)
-          req.failure { |code| failure(code) } if callback?(:failure)
+          req.failure { |code, url| failure(code, url) } if callback?(:failure)
           req.error { |e| error(e) } if callback?(:error)
           instance_exec(req, &callback)
         end
