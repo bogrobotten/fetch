@@ -37,7 +37,7 @@ module Fetch
     # Will run synchronous fetches first and async fetches afterwards.
     # Updates progress when each module finishes its fetch.
     def fetch
-      modules = instantiate_modules
+      modules = instantiate_modules.select(&:fetch?)
 
       total = modules.count
       done = 0
