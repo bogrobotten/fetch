@@ -5,7 +5,7 @@ module Fetch
       timeout:        10,
       namespaces:     ["fetch_sources"],
       raise_on_error: -> { defined?(Rails.env) && %w{development test}.include?(Rails.env) },
-      redis:          -> { Redis.new }
+      redis:          -> { ::Redis.new }
     }
 
     DEFAULTS.each do |option, value|
