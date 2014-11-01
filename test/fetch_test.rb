@@ -2,32 +2,33 @@ require "test_helper"
 
 class FetchTest < Minitest::Test
   def test_basic_fetch
-    fetchable = OpenStruct.new(callbacks: [])
+    fetchable = Fetchable.new
+    MockFetcher(BasicModule).new(fetchable).fetch
 
-    mod = Class.new(Fetch::Module) do
-      def initialize(fetchable)
-        @fetchable = fetchable
-      end
+    assert_equal %w{before fetch after}, fetchable.actions
+  end
 
-      before_fetch do
-        @fetchable.callbacks << "before"
-      end
-
-      fetch do
-        @fetchable.callbacks << "fetch"
-      end
-
-      after_fetch do
-        @fetchable.callbacks << "after"
-      end
+  class BasicModule < Fetch::Module
+    def initialize(fetchable)
+      @fetchable = fetchable
     end
 
-    klass = Class.new(Fetch::Base) do
-      modules { mod }
+    before_fetch do
+      @fetchable.actions << "before"
     end
 
-    klass.new(fetchable).fetch
+    fetch do
+      @fetchable.actions << "fetch"
+    end
 
-    assert_equal %w{before fetch after}, fetchable.callbacks
+    after_fetch do
+      @fetchable.actions << "after"
+    end
+  end
+
+  class Fetchable
+    def actions
+      @actions ||= []
+    end
   end
 end
