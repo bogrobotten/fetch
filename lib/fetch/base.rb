@@ -31,35 +31,16 @@ module Fetch
     # Will run synchronous fetches first and async fetches afterwards.
     # Updates progress when each module finishes its fetch.
     def fetch
-      modules = instantiate_modules.select(&:fetch?)
+      requests = instantiate_modules.select(&:fetch?).map(&:requests).flatten
 
-      total = modules.count
-      done = 0
-
+      total, done = requests.size, 0
       update_progress(total, done)
+
       before_fetch
 
-      hydra = Typhoeus::Hydra.new
-
-      modules.each do |fetch_module|
-        fetch_module.before_fetch
-        if fetch_module.async?
-          requests = fetch_module.typhoeus_requests do
-            fetch_module.after_fetch
-            update_progress(total, done += 1)
-          end
-
-          requests.each do |request|
-            hydra.queue(request)
-          end
-        else
-          fetch_module.fetch
-          fetch_module.after_fetch
-          update_progress(total, done += 1)
-        end
+      backend.new(requests).run do
+        update_progress(total, done += 1)
       end
-
-      hydra.run
 
       after_fetch
     end
@@ -78,6 +59,10 @@ module Fetch
     def update_progress(total, done)
       percentage = total.zero? ? 100 : ((done.to_f / total) * 100).to_i
       progress(percentage)
+    end
+
+    def backend
+      Fetch.config.backend
     end
   end
 end

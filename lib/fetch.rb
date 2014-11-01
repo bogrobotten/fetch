@@ -6,13 +6,18 @@ require "typhoeus"
   base
   request
   async
+  simple
   module
+  backend
   configuration
 }.each do |file|
   require "fetch/#{file}"
 end
 
 module Fetch
+  class HttpError < StandardError; end
+  class ProcessError < StandardError; end
+
   class << self
     # Returns a configuration object.
     def config

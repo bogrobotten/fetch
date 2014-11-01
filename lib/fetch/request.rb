@@ -88,8 +88,14 @@ module Fetch
       if block_given?
         @process_block = block
       else
-        @process_block ||= Proc.new
+        @process_block ||= Proc.new {}
       end
+    end
+
+    def process!(body, url, effective_url)
+      process.call(body, url, effective_url)
+    rescue => e
+      raise ProcessError.new(e.message)
     end
   end
 end
