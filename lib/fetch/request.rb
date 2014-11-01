@@ -88,6 +88,17 @@ module Fetch
       headers.merge! "User-Agent" => value
     end
 
+    # Sets a callback to be run before each process.
+    def before_process(&block)
+      raise "You must supply a block to #{self.class.name}#before_process" unless block
+      @before_process_callback = block
+    end
+
+    # Runs the before process callback.
+    def before_process!
+      @before_process_callback.call if @before_process_callback
+    end
+
     # Sets the callback to be run when the request completes.
     def process(&block)
       raise "You must supply a block to #{self.class.name}#process" unless block
@@ -97,6 +108,7 @@ module Fetch
     # Runs the process callback. If it fails with an exception, it will send
     # the exception to the error callback.
     def process!(body, url, effective_url)
+      before_process!
       @process_callback.call(body, url, effective_url) if @process_callback
     rescue => e
       error!(e)
