@@ -1,7 +1,7 @@
 require "test_helper"
 
 class FetchTest < Minitest::Test
-  def test_basic_fetch
+  def test_fetch_using_get
     stub_request(:get, "http://test.com/one").to_return(body: "got one")
     actions = []
     mod = Class.new(Fetch::Module) do
@@ -14,6 +14,23 @@ class FetchTest < Minitest::Test
     end
     MockFetcher(mod).new.fetch
     assert_equal ["body: got one"], actions
+  end
+
+  def test_fetch_using_post
+    stub_request(:post, "http://test.com/create").to_return(->(req) { { body: "you posted: #{req.body}" } })
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      request do |req|
+        req.method = :post
+        req.url = "http://test.com/create"
+        req.body = { one: 1, two: 2 }
+        req.process do |body|
+          actions << "body: #{body}"
+        end
+      end
+    end
+    MockFetcher(mod).new.fetch
+    assert_equal ["body: you posted: one=1&two=2"], actions
   end
 
   def test_positive_fetch_if_filter
