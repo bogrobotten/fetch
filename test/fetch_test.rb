@@ -29,6 +29,19 @@ class FetchTest < Minitest::Test
     assert !fetchable.actions.include?("fetch")
   end
 
+  def test_progress
+    fetchable = Fetchable.new
+    updates = []
+    mods = [Fetch::Module] * 3
+    klass = Class.new(MockFetcher(mods)) do
+      progress do |percent|
+        updates << percent
+      end
+    end
+    klass.new.fetch
+    assert_equal [0, 33, 66, 100], updates
+  end
+
   class BasicModule < Fetch::Module
     def initialize(fetchable)
       @fetchable = fetchable
