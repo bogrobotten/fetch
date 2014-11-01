@@ -1,32 +1,30 @@
 require "time"
 
 module Fetch
-  module Progress
+  module Status
     module Redis
       def self.included(base)
         base.before_fetch do
-          progress.before_fetch
+          status.started!
         end
 
         base.progress do |percent|
-          progress.progress(percent)
+          status.progress!(percent)
         end
 
         base.after_fetch do
-          progress.after_fetch
+          status.completed!
         end
       end
 
       # Returns an instance of +Progress+.
-      def progress(*args)
-        if args.any?
-          super
-        else
-          @progress ||= Progress.new(fetch_key)
-        end
+      def redis_status
+        @redis_status ||= Status.new(fetch_key)
       end
 
-      class Progress
+      alias :status :redis_status
+
+      class Status
         attr_reader :fetch_key
 
         # Initializes the progress instance with a fetch key.
@@ -47,6 +45,18 @@ module Fetch
           !!started_at
         end
 
+        # Marks the progress as started, setting +started_at+ to the current
+        # time, +percent+ to 0 and +completed_at+ to nil.
+        # Can be used to manually mark the progress as being started, for
+        # example right before you send a fetch job to a background queue.
+        def started!
+          redis.pipelined do
+            redis.set("#{redis_prefix}:started_at", Time.now)
+            redis.set("#{redis_prefix}:progress", 0)
+            redis.del("#{redis_prefix}:completed_at")
+          end
+        end
+
         # Returns the time where the progress was completed, or +nil+ if the
         # fetch hasn't completed.
         def completed_at
@@ -60,46 +70,28 @@ module Fetch
           !!completed_at
         end
 
+        # Marks the progress as completed, setting +completed_at+ to the
+        # current time.
+        def completed!
+          redis.pipelined do
+            redis.set("#{redis_prefix}:progress", 100)
+            redis.set("#{redis_prefix}:completed_at", Time.now)
+          end
+        end
+
         # Returns +true+ if the fetch is started and isn't completed.
         def running?
           started? && !completed?
         end
 
-        # Returns the progress in percent.
-        def percent
+        # Returns the current progress in percent.
+        def progress
           redis.get("#{redis_prefix}:progress").to_i
         end
 
-        # Marks the progress as started, setting +started_at+ to the current
-        # time, +percent+ to 0 and +completed_at+ to nil.
-        # Can be used to manually mark the progress as being started, for
-        # example right before you send a fetch job to a background queue.
-        def started!
-          redis.pipelined do
-            redis.set("#{redis_prefix}:started_at", Time.now)
-            redis.set("#{redis_prefix}:progress", 0)
-            redis.del("#{redis_prefix}:completed_at")
-          end
-        end
-
-        # Marks the progress as started, setting +started_at+ to the current
-        # time, +percent+ to 0 and +completed_at+ to nil.
-        def before_fetch
-          started!
-        end
-
         # Updates the progress +percent+.
-        def progress(percent)
+        def progress!(percent)
           redis.set("#{redis_prefix}:progress", percent)
-        end
-
-        # Marks the progress as completed, setting +completed_at+ to the
-        # current time.
-        def after_fetch
-          redis.pipelined do
-            redis.set("#{redis_prefix}:progress", 100)
-            redis.set("#{redis_prefix}:completed_at", Time.now)
-          end
         end
 
         private
