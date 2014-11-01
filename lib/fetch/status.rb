@@ -1,1 +1,0 @@
-require "fetch/status/redis"

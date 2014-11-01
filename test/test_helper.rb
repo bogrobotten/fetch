@@ -1,6 +1,5 @@
 require "minitest/autorun"
 require "active_record"
-require "fakeredis"
 
 require "fetch"
 
