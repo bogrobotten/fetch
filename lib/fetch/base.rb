@@ -43,6 +43,8 @@ module Fetch
       end
 
       after_fetch
+
+      true
     end
 
     private
