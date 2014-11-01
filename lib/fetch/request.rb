@@ -110,8 +110,20 @@ module Fetch
     def process!(body, url, effective_url)
       before_process!
       @process_callback.call(body, url, effective_url) if @process_callback
+      after_process!
     rescue => e
       error!(e)
+    end
+
+    # Sets a callback to be run after each process.
+    def after_process(&block)
+      raise "You must supply a block to #{self.class.name}#after_process" unless block
+      @after_process_callback = block
+    end
+
+    # Runs the after process callback.
+    def after_process!
+      @after_process_callback.call if @after_process_callback
     end
 
     # Sets the callback to be run if a request fails.
