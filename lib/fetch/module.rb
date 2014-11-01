@@ -9,14 +9,6 @@ module Fetch
                     :after_fetch,
                     :failed
 
-    # The object being fetched.
-    attr_reader :fetchable
-
-    # Initializes the fetch module with a fetchable.
-    def initialize(fetchable)
-      @fetchable = fetchable
-    end
-
     # Whether or not the module should be used when fetching.
     # Set with `fetch_if do ... end`.
     def fetch?

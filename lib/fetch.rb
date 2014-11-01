@@ -12,8 +12,6 @@ require "typhoeus"
   require "fetch/#{file}"
 end
 
-require "fetchable"
-
 module Fetch
   class << self
     # Returns a configuration object.

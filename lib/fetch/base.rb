@@ -21,16 +21,10 @@ module Fetch
                     :after_fetch,
                     :progress
 
-    attr_reader :fetchable
-
-    # Initialize the fetcher with an optional fetchable instance.
-    def initialize(fetchable = nil)
-      @fetchable = fetchable
-    end
-
-    # Fetch key of the fetch, taken from the fetchable.
-    def fetch_key
-      fetchable.fetch_key if fetchable
+    # Initialize the fetcher with optional arguments to be sent to fetch
+    # modules.
+    def initialize(*module_args)
+      @module_args = module_args
     end
 
     # Begin fetching.
@@ -70,19 +64,14 @@ module Fetch
       after_fetch
     end
 
-    before_fetch do
-      fetchable.before_fetch if fetchable
-    end
-
-    after_fetch do
-      fetchable.after_fetch if fetchable
-    end
-
     private
+
+    # Holds the arguments to be sent to fetch modules.
+    attr_reader :module_args
 
     # Array of instantiated fetch modules.
     def instantiate_modules
-      modules.map { |m| m.new(fetchable) }
+      modules.map { |m| m.new(*module_args) }
     end
 
     # Updates progress with a percentage calculated from +total+ and +done+.
