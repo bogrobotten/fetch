@@ -71,7 +71,7 @@ module Fetch
 
     # Array of instantiated fetch modules.
     def instantiate_modules
-      modules.map { |m| m.new(*module_args) }
+      Array(modules).map { |m| m.new(*module_args) }
     end
 
     # Updates progress with a percentage calculated from +total+ and +done+.
