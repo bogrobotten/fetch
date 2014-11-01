@@ -4,8 +4,7 @@ module Fetch
       user_agent:     "Mozilla/5.0",
       timeout:        10,
       namespaces:     ["fetch_sources"],
-      raise_on_error: -> { defined?(Rails.env) && %w{development test}.include?(Rails.env) },
-      redis:          -> { ::Redis.new }
+      raise_on_error: -> { defined?(Rails.env) && %w{development test}.include?(Rails.env) }
     }
 
     DEFAULTS.each do |option, value|
