@@ -33,6 +33,40 @@ class FetchTest < Minitest::Test
     assert_equal ["body: you posted: one=1&two=2"], actions
   end
 
+  def test_url_not_set
+    stub_request(:get, "http://test.com/one").to_return(body: "got one")
+
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      2.times do
+        request do |req|
+          req.url = "http://test.com/one"
+          req.process do |body|
+            actions << "process: #{body}"
+          end
+        end
+      end
+      2.times do
+        request do |req|
+          req.process do |body|
+            actions << "process: #{body}"
+          end
+        end
+      end
+    end
+
+    updates = []
+    klass = Class.new(MockFetcher(mod)) do
+      progress do |percent|
+        updates << percent
+      end
+    end
+
+    klass.new.fetch
+    assert_equal ["process: got one", "process: got one"], actions
+    assert_equal [0, 50, 100], updates
+  end
+
   def test_process_block_scope
     stub_request(:get, "http://test.com/one").to_return(body: "got one")
     actions = []

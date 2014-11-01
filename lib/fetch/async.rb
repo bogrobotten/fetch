@@ -15,7 +15,7 @@ module Fetch
           req.error { |e| error(e) } if callback?(:error)
           instance_exec(req, &callback)
         end
-      end
+      end.select(&:url)
     end
   end
 end
