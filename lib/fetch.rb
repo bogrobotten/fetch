@@ -3,7 +3,6 @@ require "typhoeus"
 
 %w{
   version
-  util
   callbacks
   base
   request
