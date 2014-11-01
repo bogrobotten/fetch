@@ -15,7 +15,7 @@ class FetchTest < Minitest::Test
       end
     end
     MockFetcher(mod).new(fetchable).fetch
-    assert_includes fetchable.actions, "fetch"
+    assert_equal %w{before fetch after}, fetchable.actions
   end
 
   def test_negative_fetch_if_filter
@@ -26,7 +26,7 @@ class FetchTest < Minitest::Test
       end
     end
     MockFetcher(mod).new(fetchable).fetch
-    assert !fetchable.actions.include?("fetch")
+    assert_equal [], fetchable.actions
   end
 
   def test_progress
