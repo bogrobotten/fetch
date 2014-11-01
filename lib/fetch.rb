@@ -15,8 +15,17 @@ require "typhoeus"
 end
 
 module Fetch
-  class HttpError < StandardError; end
-  class ProcessError < StandardError; end
+  class HttpError < StandardError
+    attr_reader :code, :url
+
+    def initialize(code, url)
+      @code, @url = code, url
+    end
+
+    def message
+      "HTTP Error #{code}: #{url}"
+    end
+  end
 
   class << self
     # Returns a configuration object.

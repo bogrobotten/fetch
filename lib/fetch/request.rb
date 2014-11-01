@@ -85,17 +85,23 @@ module Fetch
 
     # Sets the callback to be run when the request completes
     def process(&block)
-      if block_given?
-        @process_block = block
-      else
-        @process_block ||= Proc.new {}
-      end
+      raise "You must supply a block to #{self.class.name}#process" unless block
+      @process_callback = block
     end
 
     def process!(body, url, effective_url)
-      process.call(body, url, effective_url)
+      @process_callback.call(body, url, effective_url) if @process_callback
     rescue => e
-      raise ProcessError.new(e.message)
+      failed!(e)
+    end
+
+    def failure(&block)
+      raise "You must supply a block to #{self.class.name}#failed" unless block
+      @failure_callback = block
+    end
+
+    def failed!(exception)
+      @failure_callback.call(exception) if @failure_callback
     end
   end
 end

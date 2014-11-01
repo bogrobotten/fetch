@@ -98,6 +98,110 @@ class FetchTest < Minitest::Test
     assert_equal ["body: got one", "body: got two", "body: got three"], actions
   end
 
+  def test_unhandled_http_failure
+    stub_request(:get, "http://test.com/one").to_return(body: "something went wrong", status: 500)
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      request do |req|
+        req.url = "http://test.com/one"
+        req.process do |body|
+          actions << "body: #{body}"
+        end
+      end
+    end
+    assert_raises Fetch::HttpError do
+      MockFetcher(mod).new.fetch
+    end
+  end
+
+  def test_http_failure_handled_in_request
+    stub_request(:get, "http://test.com/one").to_return(body: "something went wrong", status: 500)
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      request do |req|
+        req.url = "http://test.com/one"
+        req.failure do |e|
+          actions << "handled error #{e.code}"
+        end
+        req.process do |body|
+          actions << "body: #{body}"
+        end
+      end
+    end
+    MockFetcher(mod).new.fetch
+    assert_equal ["handled error 500"], actions
+  end
+
+  def test_http_failure_handled_in_module
+    stub_request(:get, "http://test.com/one").to_return(body: "something went wrong", status: 500)
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      request do |req|
+        req.url = "http://test.com/one"
+        req.process do |body|
+          actions << "body: #{body}"
+        end
+      end
+      failed do |e|
+        actions << "handled error #{e.code}"
+      end
+    end
+    MockFetcher(mod).new.fetch
+    assert_equal ["handled error 500"], actions
+  end
+
+  def test_unhandled_process_error
+    stub_request(:get, "http://test.com/one").to_return(body: "ok")
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      request do |req|
+        req.url = "http://test.com/one"
+        req.process do |body|
+          this_wont_work
+        end
+      end
+    end
+    assert_raises NameError do
+      MockFetcher(mod).new.fetch
+    end
+  end
+
+  def test_process_error_handled_in_request
+    stub_request(:get, "http://test.com/one").to_return(body: "ok")
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      request do |req|
+        req.url = "http://test.com/one"
+        req.failure do |e|
+          actions << "handled #{e.class.name}"
+        end
+        req.process do |body|
+          this_wont_work
+        end
+      end
+    end
+    MockFetcher(mod).new.fetch
+    assert_equal ["handled NameError"], actions
+  end
+
+  def test_process_error_handled_in_module
+    stub_request(:get, "http://test.com/one").to_return(body: "ok")
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      request do |req|
+        req.url = "http://test.com/one"
+        req.process do |body|
+          this_wont_work
+        end
+      end
+      failed do |e|
+        actions << "handled #{e.class.name}"
+      end
+    end
+    MockFetcher(mod).new.fetch
+    assert_equal ["handled NameError"], actions
+  end
+
   def test_progress_with_single_module
     stub_request(:get, "http://test.com/one").to_return(body: "got one")
 

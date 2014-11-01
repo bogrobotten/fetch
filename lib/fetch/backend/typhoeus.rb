@@ -25,11 +25,16 @@ module Fetch
             headers: req.headers
           )
 
-          request.on_complete do |res|
-            if res.success?
-              req.process!(res.body, req.url, res.effective_url)
-            else
-              raise HttpError.new(res.return_message)
+          request.on_success do |res|
+            req.process!(res.body, req.url, res.effective_url)
+            progress.call
+          end
+
+          request.on_failure do |res|
+            begin
+              raise HttpError.new(res.code, req.url)
+            rescue => e
+              req.failed!(e)
             end
             progress.call
           end
