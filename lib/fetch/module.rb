@@ -4,7 +4,8 @@ module Fetch
     include Async
 
     define_callback :fetch_if,
-                    :failed
+                    :failure,
+                    :error
 
     # Whether or not the module should be used when fetching.
     # Set with `fetch_if do ... end`.

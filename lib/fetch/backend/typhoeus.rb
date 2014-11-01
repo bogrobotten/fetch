@@ -31,11 +31,7 @@ module Fetch
           end
 
           request.on_failure do |res|
-            begin
-              raise HttpError.new(res.code, req.url)
-            rescue => e
-              req.failed!(e)
-            end
+            req.failed!(res.code)
             progress.call
           end
 

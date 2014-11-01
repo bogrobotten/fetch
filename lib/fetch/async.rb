@@ -6,16 +6,11 @@ module Fetch
 
     def requests
       self.class.callbacks[:request].map do |callback|
-        req = Request.new
-        req.failure do |e|
-          if callback?(:failed)
-            failed(e)
-          else
-            raise e
-          end
+        Request.new.tap do |req|
+          req.failure { |code| failure(code) } if callback?(:failure)
+          req.error { |e| error(e) } if callback?(:error)
+          instance_exec(req, &callback)
         end
-        instance_exec(req, &callback)
-        req
       end
     end
   end

@@ -109,9 +109,7 @@ class FetchTest < Minitest::Test
         end
       end
     end
-    assert_raises Fetch::HttpError do
-      MockFetcher(mod).new.fetch
-    end
+    assert_equal [], actions
   end
 
   def test_http_failure_handled_in_request
@@ -120,8 +118,8 @@ class FetchTest < Minitest::Test
     mod = Class.new(Fetch::Module) do
       request do |req|
         req.url = "http://test.com/one"
-        req.failure do |e|
-          actions << "handled error #{e.code}"
+        req.failure do |code|
+          actions << "handled error #{code}"
         end
         req.process do |body|
           actions << "body: #{body}"
@@ -142,8 +140,8 @@ class FetchTest < Minitest::Test
           actions << "body: #{body}"
         end
       end
-      failed do |e|
-        actions << "handled error #{e.code}"
+      failure do |code|
+        actions << "handled error #{code}"
       end
     end
     MockFetcher(mod).new.fetch
@@ -172,7 +170,7 @@ class FetchTest < Minitest::Test
     mod = Class.new(Fetch::Module) do
       request do |req|
         req.url = "http://test.com/one"
-        req.failure do |e|
+        req.error do |e|
           actions << "handled #{e.class.name}"
         end
         req.process do |body|
@@ -194,7 +192,7 @@ class FetchTest < Minitest::Test
           this_wont_work
         end
       end
-      failed do |e|
+      error do |e|
         actions << "handled #{e.class.name}"
       end
     end
@@ -248,5 +246,49 @@ class FetchTest < Minitest::Test
 
     klass.new.fetch
     assert_equal [0, 16, 33, 50, 66, 83, 100], updates
+  end
+
+  def test_progress_with_http_failure
+    stub_request(:get, "http://test.com/one").to_return(body: "something went wrong", status: 500)
+    updates = []
+    mods = 3.times.map do
+      Class.new(Fetch::Module) do
+        request do |req|
+          req.url = "http://test.com/one"
+        end
+      end
+    end
+    klass = Class.new(MockFetcher(mods)) do
+      progress do |percent|
+        updates << percent
+      end
+    end
+
+    klass.new.fetch
+    assert_equal [0, 33, 66, 100], updates
+  end
+
+  def test_progress_with_handled_process_error
+    stub_request(:get, "http://test.com/one").to_return(body: "ok")
+    updates = []
+    mods = 3.times.map do
+      Class.new(Fetch::Module) do
+        request do |req|
+          req.url = "http://test.com/one"
+          req.process do |body|
+            wont_work
+          end
+          req.error { }
+        end
+      end
+    end
+    klass = Class.new(MockFetcher(mods)) do
+      progress do |percent|
+        updates << percent
+      end
+    end
+
+    klass.new.fetch
+    assert_equal [0, 33, 66, 100], updates
   end
 end
