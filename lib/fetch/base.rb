@@ -16,33 +16,10 @@ module Fetch
     #   progress do |progress|
     #     # update progress in percent
     #   end
-    define_callback :before_fetch,
+    define_callback :modules,
+                    :before_fetch,
                     :after_fetch,
                     :progress
-
-    # Sets the fetch modules to be used when fetching.
-    # If you supply a block, it will be evaluated in context of the fetcher.
-    #
-    #   class SomeFetcher < Fetch::Base
-    #     modules Twitter::UserFetch,
-    #             Github::UserFetch
-    #   end
-    #
-    #   class SomeFetcher < Fetch::Base
-    #     modules do
-    #       # Return modules after doing something
-    #       # in the instance of the class.
-    #     end
-    #   end
-    def self.modules(*modules, &block)
-      if modules.any?
-        @modules = modules.flatten
-      elsif block_given?
-        @modules = block
-      else
-        @modules
-      end
-    end
 
     attr_reader :fetchable
 
@@ -99,13 +76,7 @@ module Fetch
 
     # Array of instantiated fetch modules.
     def instantiate_modules
-      module_klasses.map { |m| m.new(fetchable) }
-    end
-
-    def module_klasses
-      klasses = self.class.modules
-      klasses = instance_eval(&klasses) if klasses.is_a?(Proc)
-      klasses
+      modules.map { |m| m.new(fetchable) }
     end
 
     # Updates progress with a percentage calculated from +total+ and +done+.

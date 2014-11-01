@@ -1,7 +1,9 @@
 class UserFetcher < Fetch::Base
-  modules Sites::Github::UserInfoFetch,
-          Sites::Facebook::UserInfoFetch,
-          Sites::SomeOtherSite::UserInfoFetch
+  modules do
+    [Sites::Github::UserInfoFetch,
+     Sites::Facebook::UserInfoFetch,
+     Sites::SomeOtherSite::UserInfoFetch]
+  end
 
   before_fetch do
     puts "before fetch"
