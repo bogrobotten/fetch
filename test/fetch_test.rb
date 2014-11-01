@@ -6,14 +6,4 @@ class FetchTest < Minitest::Test
       config.raise_on_error = true
     end
   end
-
-  def test_async_fetch
-    user = User.find_by_login!("lassebunk")
-    user.fetcher.fetch
-
-    assert_equal 662377014, user.facebook_id
-    assert_equal 106146, user.github_id
-    assert_includes user.github_repos, "gretel"
-    assert_equal 1234, user.some_other_id
-  end
 end

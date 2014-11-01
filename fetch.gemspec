@@ -18,8 +18,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "typhoeus", ">= 0.6.0"
-  s.add_development_dependency "sqlite3"
-  s.add_development_dependency "activerecord"
   s.add_development_dependency "json"
   s.add_development_dependency "minitest",  ">= 5.4"
   s.add_development_dependency "webmock",   ">= 1.20"
