@@ -2,35 +2,41 @@ require "test_helper"
 
 class FetchTest < Minitest::Test
   def test_basic_fetch
-    fetchable = Fetchable.new
-    MockFetcher(BasicModule).new(fetchable).fetch
-    assert_equal %w{before fetch after}, fetchable.actions
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      before_fetch { actions << "before" }
+      fetch { actions << "fetch" }
+      after_fetch { actions << "after" }
+    end
+    MockFetcher(mod).new.fetch
+    assert_equal %w{before fetch after}, actions
   end
 
   def test_positive_fetch_if_filter
-    fetchable = Fetchable.new
-    mod = Class.new(BasicModule) do
-      fetch_if do
-        true
-      end
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      fetch_if { true }
+      before_fetch { actions << "before" }
+      fetch { actions << "fetch" }
+      after_fetch { actions << "after" }
     end
-    MockFetcher(mod).new(fetchable).fetch
-    assert_equal %w{before fetch after}, fetchable.actions
+    MockFetcher(mod).new.fetch
+    assert_equal %w{before fetch after}, actions
   end
 
   def test_negative_fetch_if_filter
-    fetchable = Fetchable.new
-    mod = Class.new(BasicModule) do
-      fetch_if do
-        false
-      end
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      fetch_if { false }
+      before_fetch { actions << "before" }
+      fetch { actions << "fetch" }
+      after_fetch { actions << "after" }
     end
-    MockFetcher(mod).new(fetchable).fetch
-    assert_equal [], fetchable.actions
+    MockFetcher(mod).new.fetch
+    assert_equal [], actions
   end
 
   def test_progress
-    fetchable = Fetchable.new
     updates = []
     mods = [Fetch::Module] * 3
     klass = Class.new(MockFetcher(mods)) do
@@ -40,29 +46,5 @@ class FetchTest < Minitest::Test
     end
     klass.new.fetch
     assert_equal [0, 33, 66, 100], updates
-  end
-
-  class BasicModule < Fetch::Module
-    def initialize(fetchable)
-      @fetchable = fetchable
-    end
-
-    before_fetch do
-      @fetchable.actions << "before"
-    end
-
-    fetch do
-      @fetchable.actions << "fetch"
-    end
-
-    after_fetch do
-      @fetchable.actions << "after"
-    end
-  end
-
-  class Fetchable
-    def actions
-      @actions ||= []
-    end
   end
 end
