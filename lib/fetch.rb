@@ -8,7 +8,6 @@ require "typhoeus"
   base
   request
   async
-  module_cache
   module
   configuration
   progress
