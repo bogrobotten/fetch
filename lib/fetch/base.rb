@@ -17,15 +17,10 @@ module Fetch
     #     # update progress in percent
     #   end
     define_callback :modules,
+                    :init,
                     :before_fetch,
                     :after_fetch,
                     :progress
-
-    # Initialize the fetcher with optional arguments to be sent to fetch
-    # modules.
-    def initialize(*module_args)
-      @module_args = module_args
-    end
 
     # Begin fetching.
     # Will run synchronous fetches first and async fetches afterwards.
@@ -49,12 +44,11 @@ module Fetch
 
     private
 
-    # Holds the arguments to be sent to fetch modules.
-    attr_reader :module_args
-
     # Array of instantiated fetch modules.
     def instantiate_modules
-      Array(modules).map { |m| m.new(*module_args) }
+      Array(modules).map do |klass|
+        init(klass) || klass.new
+      end
     end
 
     # Updates progress with a percentage calculated from +total+ and +done+.

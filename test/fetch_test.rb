@@ -67,7 +67,7 @@ class FetchTest < Minitest::Test
     assert_equal [0, 50, 100], updates
   end
 
-  def test_instantiates_modules_with_args
+  def test_initializes_modules
     stub_request(:get, "http://test.com/one").to_return(body: "got one")
     actions = []
     mod = Class.new(Fetch::Module) do
@@ -82,7 +82,18 @@ class FetchTest < Minitest::Test
         end
       end
     end
-    MockFetcher(mod).new("a word").fetch
+
+    klass = Class.new(MockFetcher(mod)) do
+      attr_reader :something
+      def initialize(something)
+        @something = something
+      end
+      init do |klass|
+        klass.new(something)
+      end
+    end
+
+    klass.new("a word").fetch
     assert_equal ["process: got one (a word)"], actions
   end
 
