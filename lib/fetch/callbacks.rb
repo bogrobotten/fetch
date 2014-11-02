@@ -30,8 +30,8 @@ module Fetch
       # Defines callback methods on the class level.
       def define_callback(*names)
         names.each do |name|
-          define_singleton_method name do |&block|
-            add_callback(name, &block)
+          define_singleton_method name do |*values, &block|
+            create_callback_for(name, *values, &block)
           end
 
           define_method name do |*args|
@@ -48,6 +48,11 @@ module Fetch
       end
 
       private
+
+      def create_callback_for(name, *values, &block)
+        add_callback(name) { values } if values.any?
+        add_callback(name, &block) if block
+      end
 
       def add_callback(name, &block)
         callbacks[name] << block

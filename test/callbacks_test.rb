@@ -85,4 +85,13 @@ class CallbackTest < Minitest::Test
     assert_equal [before1, before2], superclass.callbacks[:before]
     assert_equal [before1, before2, before3], subclass.callbacks[:before]
   end
+
+  def test_callbacks_can_take_fixed_values
+    klass = Class.new do
+      include Fetch::Callbacks
+      define_callback :modules
+      modules "one", "two", "three"
+    end
+    assert_equal ["one", "two", "three"], klass.new.modules
+  end
 end
