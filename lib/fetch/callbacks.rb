@@ -42,7 +42,9 @@ module Fetch
 
       def inherited(base)
         super
-        base.instance_variable_set(:@callbacks, @callbacks.dup) unless @callbacks.nil?
+        callbacks.each do |name, callbacks|
+          base.callbacks[name] = callbacks.dup
+        end
       end
     end
   end

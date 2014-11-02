@@ -61,16 +61,28 @@ class CallbackTest < Minitest::Test
   def test_callbacks_are_inherited
     before1 = Proc.new {}
     before2 = Proc.new {}
-
     superclass = Class.new do
       include Fetch::Callbacks
       define_callback :before
-
       before(&before1)
       before(&before2)
     end
-
     subclass = Class.new(superclass)
     assert_equal [before1, before2], subclass.callbacks[:before]
+  end
+
+  def test_callbacks_are_not_added_to_superclass
+    before1, before2, before3 = 3.times.map { Proc.new {} }
+    superclass = Class.new do
+      include Fetch::Callbacks
+      define_callback :before
+      before(&before1)
+      before(&before2)
+    end
+    subclass = Class.new(superclass) do
+      before(&before3)
+    end
+    assert_equal [before1, before2], superclass.callbacks[:before]
+    assert_equal [before1, before2, before3], subclass.callbacks[:before]
   end
 end
