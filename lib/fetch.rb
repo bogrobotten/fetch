@@ -10,6 +10,8 @@ require "typhoeus"
   module
   backend
   configuration
+  builder
+  runner
 }.each do |file|
   require "fetch/#{file}"
 end
