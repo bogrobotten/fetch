@@ -31,7 +31,7 @@ module Fetch
       def define_callback(*names)
         names.each do |name|
           define_singleton_method name do |&block|
-            callbacks[name] << block
+            add_callback(name, &block)
           end
 
           define_method name do |*args|
@@ -45,6 +45,12 @@ module Fetch
         callbacks.each do |name, callbacks|
           base.callbacks[name] = callbacks.dup
         end
+      end
+
+      private
+
+      def add_callback(name, &block)
+        callbacks[name] << block
       end
     end
   end
