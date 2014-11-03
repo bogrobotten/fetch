@@ -27,6 +27,84 @@ Then run:
 $ bundle
 ```
 
+## Example
+
+In *app/models/user.rb*:
+
+```ruby
+class User < ActiveRecord::Base
+  def fetcher
+    @fetcher ||= UserFetcher.new(self)
+  end
+end
+```
+
+In *app/fetchers/user_fetcher.rb*:
+
+```ruby
+class UserFetcher < Fetch::Base
+  modules Facebook::UserInfoFetch,
+          Github::UserInfoFetch
+end
+```
+
+In *lib/facebook/user_info_fetch.rb*:
+
+```ruby
+module Facebook
+  class UserInfoFetch < Fetch::Module
+    include Fetch::Simple
+
+    url do
+      "http://graph.facebook.com/#{fetchable.login}"
+    end
+
+    process do |body|
+      user_info = JSON.parse(body)
+      fetchable.update_attribute :facebook_id, user_info["id"]
+    end
+  end
+end
+```
+
+In *lib/github/user_info_fetch.rb*
+
+```ruby
+module Github
+  class UserInfoFetch < Fetch::Module
+    # Request for user ID
+    request do |req|
+      req.url = "https://api.github.com/users/#{fetchable.login}"
+      req.process do |body|
+        user_info = JSON.parse(body)
+        fetchable.update_attribute :github_id, user_info["id"]
+      end
+    end
+
+    # Request for repos
+    request do |req|
+      req.url = "https://api.github.com/users/#{fetchable.login}/repos"
+      req.process do |body|
+        repos = JSON.parse(body)
+        repo_names = repos.map { |r| r["name"] }
+        fetchable.update_attribute :github_repos, repo_names
+      end
+    end
+  end
+end
+```
+
+Then, when everything is set up, you can do:
+
+```ruby
+user = User.find(123)
+user.fetcher.fetch
+```
+
+This will run three requests – one for Facebook and two for GitHub – and update
+the user model with a Facebook user ID, a GitHub user ID, and a list of GitHub
+repos.
+
 ## Contributing
 
 Contributions are much appreciated. To contribute:
