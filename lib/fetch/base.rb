@@ -17,6 +17,7 @@ module Fetch
     #     # update progress in percent
     #   end
     define_callback :modules,
+                    :load,
                     :init,
                     :before_fetch,
                     :after_fetch,
@@ -53,7 +54,9 @@ module Fetch
 
     # Array of instantiated fetch modules.
     def instantiate_modules
-      Array(modules).map do |klass|
+      mods = Array(modules)
+      mods = load!(mods) if callback?(:load)
+      Array(mods).map do |klass|
         init(klass) || klass.new(fetchable)
       end
     end

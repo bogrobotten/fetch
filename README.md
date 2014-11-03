@@ -152,6 +152,36 @@ class UserInfoFetch < Fetch::Module
 end
 ```
 
+### Dynamically loading modules
+
+You can load fetch modules dynamically using the `load` callback. Normally, the
+modules defined with `modules` are instantiated directly. When you use the
+`load` callback, this will determine how your modules are loaded.
+
+```ruby
+class UserFetcher < Fetch::Base
+  modules :user_info_fetch, :status_fetch
+
+  load do |modules|
+    namespaces.product(modules).map do |path|
+      path.join("/").camelize.safe_constantize
+    end.compact
+  end
+
+  private
+
+  def namespaces
+    [:github, :facebook]
+  end
+end
+```
+
+This will load the modules `Github::UserInfoFetch`, `Github::StatusFetch`,
+`Facebook::UserInfoFetch` and `Facebook::StatusFetch`, if they are present.
+
+The `load` callback is only run once, so you can safely inherit it – only the
+last one defined will be run.
+
 ## Contributing
 
 Contributions are much appreciated. To contribute:

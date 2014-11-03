@@ -17,8 +17,18 @@ module Fetch
     #   run_callbacks_for(:progress, 12) # 12 percent done
     def run_callbacks_for(name, *args)
       self.class.callbacks[name].map do |block|
-        instance_exec(*args, &block)
+        run_callback(*args, &block)
       end
+    end
+
+    def run_last_callback_for(name, *args)
+      if callback = self.class.callbacks[name].last
+        run_callback(*args, &callback)
+      end
+    end
+
+    def run_callback(*args, &block)
+      instance_exec(*args, &block)
     end
 
     module ClassMethods
@@ -36,6 +46,10 @@ module Fetch
 
           define_method name do |*args|
             run_callbacks_for(name, *args).last
+          end
+
+          define_method "#{name}!" do |*args|
+            run_last_callback_for(name, *args)
           end
         end
       end
