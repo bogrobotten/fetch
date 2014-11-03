@@ -152,7 +152,7 @@ class UserInfoFetch < Fetch::Module
 end
 ```
 
-### Dynamically loading modules
+### Dynamically loading fetch modules
 
 You can load fetch modules dynamically using the `load` callback. Normally, the
 modules defined with `modules` are instantiated directly. When you use the
