@@ -182,6 +182,70 @@ This will load the modules `Github::UserInfoFetch`, `Github::StatusFetch`,
 The `load` callback is only run once, so you can safely inherit it – only the
 last one defined will be run.
 
+### Initializing fetch modules
+
+Normally, a fetcher is initialized with an optional `fetchable` that is sent
+along to the fetch modules when they are initialized. You can change how this
+works with the `init` callback.
+
+Let's say you have a `Search` model with a `SearchFetcher` that gets results
+from various search engines. Normally, the `Search` instance would be sent to
+the fetch modules as a fetchable. Let's say you just want to send the keyword
+to reduce coupling.
+
+In *app/fetchers/search_fetcher.rb*:
+
+```ruby
+class SearchFetcher < Fetch::Base
+  modules Google::KeywordFetch,
+          Bing::KeywordFetch
+
+  init do |klass|
+    klass.new(fetchable.keyword)
+  end
+end
+```
+
+In *lib/base/keyword_fetch.rb*:
+
+```ruby
+module Base
+  class KeywordFetch < Fetch::Module
+    attr_reader :keyword
+
+    def initialize(keyword)
+      @keyword = keyword
+    end
+  end
+end
+```
+
+In *lib/google/keyword_fetch.rb*:
+
+```ruby
+module Google
+  class KeywordFetch < Base::KeywordFetch
+    request do |req|
+      req.url = "https://www.google.com/search?q=#{CGI::escape(keyword)}"
+      req.process do |body|
+        # Do something with the body.
+      end
+    end
+  end
+end
+```
+
+And *lib/bing/keyword_fetch.rb* something similar to Google.
+
+Then:
+
+```ruby
+search = Search.find(123)
+SearchFetcher.new(search).fetch
+```
+
+Now the keyword will be sent to the fetch modules instead of the fetchable.
+
 ## Contributing
 
 Contributions are much appreciated. To contribute:
