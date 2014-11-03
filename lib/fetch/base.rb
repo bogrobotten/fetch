@@ -57,7 +57,7 @@ module Fetch
       mods = Array(modules)
       mods = load!(mods) if callback?(:load)
       Array(mods).map do |klass|
-        init(klass) || klass.new(fetchable)
+        init!(klass) || klass.new(fetchable)
       end
     end
 
