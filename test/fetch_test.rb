@@ -67,34 +67,48 @@ class FetchTest < Minitest::Test
     assert_equal [0, 50, 100], updates
   end
 
-  def test_initializes_modules
-    stub_request(:get, "http://test.com/one").to_return(body: "got one")
+  def test_sends_fetchable_to_modules
+    stub_request(:get, "https://api.github.com/users/lassebunk").to_return(body: "id: 1234")
     actions = []
     mod = Class.new(Fetch::Module) do
-      attr_reader :word
-      def initialize(word)
-        @word = word
+      request do |req|
+        req.url = "https://api.github.com/users/#{fetchable.login}"
+        req.process do |body|
+          actions << "process: #{body}"
+        end
+      end
+    end
+    user = OpenStruct.new(login: "lassebunk")
+    MockFetcher(mod).new(user).fetch
+    assert_equal ["process: id: 1234"], actions
+  end
+
+  def test_initializes_modules
+    stub_request(:get, "https://api.github.com/users/lassebunk").to_return(body: "id: 1234")
+    actions = []
+    mod = Class.new(Fetch::Module) do
+      attr_reader :email, :login
+      def initialize(email, login)
+        @email, @login = email, login
       end
       request do |req|
-        req.url = "http://test.com/one"
+        req.url = "https://api.github.com/users/#{login}"
         req.process do |body|
-          actions << "process: #{body} (#{word})"
+          actions << "process: #{body} (email: #{email}, login: #{login})"
         end
       end
     end
 
     klass = Class.new(MockFetcher(mod)) do
-      attr_reader :something
-      def initialize(something)
-        @something = something
-      end
+      alias :user :fetchable
       init do |klass|
-        klass.new(something)
+        klass.new(user.email, user.login)
       end
     end
 
-    klass.new("a word").fetch
-    assert_equal ["process: got one (a word)"], actions
+    user = OpenStruct.new(email: "lasse@bogrobotten.dk", login: "lassebunk")
+    klass.new(user).fetch
+    assert_equal ["process: id: 1234 (email: lasse@bogrobotten.dk, login: lassebunk)"], actions
   end
 
   def test_process_block_scope

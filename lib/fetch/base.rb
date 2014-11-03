@@ -22,6 +22,10 @@ module Fetch
                     :after_fetch,
                     :progress
 
+    def initialize(fetchable = nil)
+      @fetchable = fetchable
+    end
+
     # Begin fetching.
     # Will run synchronous fetches first and async fetches afterwards.
     # Updates progress when each module finishes its fetch.
@@ -44,10 +48,13 @@ module Fetch
 
     private
 
+    # The optional instance being fetched.
+    attr_reader :fetchable
+
     # Array of instantiated fetch modules.
     def instantiate_modules
       Array(modules).map do |klass|
-        init(klass) || klass.new
+        init(klass) || klass.new(fetchable)
       end
     end
 
