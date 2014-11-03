@@ -105,6 +105,35 @@ This will run three requests – one for Facebook and two for GitHub – and upd
 the user model with a Facebook user ID, a GitHub user ID, and a list of GitHub
 repos.
 
+## Good to know
+
+### Adding defaults to your requests
+
+Each fetch module has a `defaults` callback that you can use to set up defaults
+for all requests in that modules.
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  defaults do |req|
+    req.user_agent = "My Awesome Bot!"
+  end
+
+  request do |req|
+    req.url = "http://test.com"
+    req.process do |body|
+      # Do some processing
+    end
+  end
+end
+```
+
+This will add the user agent `My Awesome Bot!` to all requests in the
+`UserInfoFetch` module.
+
+The `defaults` callback is inherited, like all other callbacks, so if you have
+a base fetch class that you subclass, the `defaults` callback in the superclass
+will be run in all subclasses.
+
 ## Contributing
 
 Contributions are much appreciated. To contribute:

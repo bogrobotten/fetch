@@ -2,6 +2,7 @@ module Fetch
   module Async
     def self.included(base)
       base.define_callback :request,
+                           :defaults,
                            :before_process,
                            :after_process
     end
@@ -9,6 +10,7 @@ module Fetch
     def requests
       self.class.callbacks[:request].map do |callback|
         Request.new.tap do |req|
+          defaults(req)
           req.before_process { before_process } if callback?(:before_process)
           req.after_process { after_process } if callback?(:after_process)
           req.failure { |code, url| failure(code, url) } if callback?(:failure)
