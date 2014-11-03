@@ -99,6 +99,19 @@ module Fetch
       @before_process_callback.call if @before_process_callback
     end
 
+    # Sets a parse callback to be run on the body returned from the request.
+    # It is run before processing and its result send to process.
+    def parse(&block)
+      raise "You must supply a block to #{self.class.name}#parse" unless block
+      @parse_callback = block
+    end
+
+    # Runs the before process callback.
+    def parse!(body)
+      return body unless @parse_callback
+      @parse_callback.call(body)
+    end
+
     # Sets the callback to be run when the request completes.
     def process(&block)
       raise "You must supply a block to #{self.class.name}#process" unless block
@@ -109,6 +122,7 @@ module Fetch
     # the exception to the error callback.
     def process!(body, url, effective_url)
       before_process!
+      body = parse!(body)
       @process_callback.call(body, url, effective_url) if @process_callback
       after_process!
     rescue => e
