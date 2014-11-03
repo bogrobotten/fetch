@@ -134,6 +134,95 @@ The `defaults` callback is inherited, like all other callbacks, so if you have
 a base fetch class that you subclass, the `defaults` callback in the superclass
 will be run in all subclasses.
 
+### Handling HTTP failures
+
+HTTP failures can be handled using the `failure` callback. If you want to
+handle failures for all requests generally, you can use the module-wide
+`failure` callback:
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  request do |req|
+    req.url = "http://test.com/something-failing"
+    req.process do |body|
+      # Do something if successful.
+    end
+  end
+
+  failure do |code, url|
+    Rails.logger.info "Fetching from #{url} failed: #{code}"
+  end
+end
+```
+
+If you want to handle failures on the specific requests instead:
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  request do |req|
+    req.url = "http://test.com/something-failing"
+    req.process do |body|
+      # Do something if successful.
+    end
+    req.failure do |code, url|
+      # Handle the failure
+    end
+  end
+end
+```
+
+When you handle failures directly on the request, the general `failure`
+callback isn't called.
+
+**Note:** If you don't specify a `failure` callback at all, HTTP failures are ignored,
+and processing skipped for the failed request.
+
+### Handling errors
+
+Sometimes a URL will return something that potentially makes your processing
+code fail. To prevent this from breaking your whole fetch, you can handle
+errors using the `error` callback:
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  request do |req|
+    req.url = "http://test.com/something-failing"
+    req.process do |body|
+      # Do something if successful.
+    end
+  end
+
+  error do |exception|
+    Rails.logger.info "An error occured: #{exception.message}\n" +
+                      exception.backtrace.join("\n")
+    raise exception if ["development", "test"].include?(Rails.env)
+  end
+end
+```
+
+You can also do it directly on the requests:
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  request do |req|
+    req.url = "http://test.com/something-failing"
+    req.process do |body|
+      # Do something if successful.
+    end
+    req.error do |exception|
+      # Handle the error
+    end
+  end
+end
+```
+
+If you handle errors directly on the requests, the general `error` callback
+isn't run.
+
+**Note:** If you don't do any error handling in one of the two ways shown
+above, any exceptions that occur when processing will be raised, causing the
+whole fetch to fail. So please add error handling :blush:
+
 ### Parsing JSON
 
 Fetch has a module for automatically parsing the request body as JSON before
