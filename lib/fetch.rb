@@ -7,6 +7,7 @@ require "typhoeus"
   request
   async
   simple
+  json
   module
   backend
   configuration

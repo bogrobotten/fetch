@@ -1,6 +1,7 @@
 require "minitest/autorun"
 require "webmock/minitest"
 require "ostruct"
+require "json"
 
 require "fetch"
 

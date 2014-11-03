@@ -54,13 +54,13 @@ In *lib/facebook/user_info_fetch.rb*:
 module Facebook
   class UserInfoFetch < Fetch::Module
     include Fetch::Simple
+    include Fetch::JSON
 
     url do
       "http://graph.facebook.com/#{fetchable.login}"
     end
 
-    process do |body|
-      user_info = JSON.parse(body)
+    process do |user_info|
       fetchable.update_attribute :facebook_id, user_info["id"]
     end
   end
@@ -72,20 +72,20 @@ In *lib/github/user_info_fetch.rb*
 ```ruby
 module Github
   class UserInfoFetch < Fetch::Module
+    include Fetch::JSON
+
     # Request for user ID
     request do |req|
       req.url = "https://api.github.com/users/#{fetchable.login}"
-      req.process do |body|
-        user_info = JSON.parse(body)
-        fetchable.update_attribute :github_id, user_info["id"]
+      req.process do |user|
+        fetchable.update_attribute :github_id, user["id"]
       end
     end
 
     # Request for repos
     request do |req|
       req.url = "https://api.github.com/users/#{fetchable.login}/repos"
-      req.process do |body|
-        repos = JSON.parse(body)
+      req.process do |repos|
         repo_names = repos.map { |r| r["name"] }
         fetchable.update_attribute :github_repos, repo_names
       end
@@ -133,6 +133,24 @@ This will add the user agent `My Awesome Bot!` to all requests in the
 The `defaults` callback is inherited, like all other callbacks, so if you have
 a base fetch class that you subclass, the `defaults` callback in the superclass
 will be run in all subclasses.
+
+### Parsing JSON
+
+Fetch has a module for automatically parsing the request body as JSON before
+it is sent to the process block.
+
+```ruby
+class UserInfoFetch < Fetch::Module
+  include Fetch::JSON
+
+  request do |req|
+    req.url = "http://api.test.com/user"
+    req.process do |json|
+      # Do something with the JSON.
+    end
+  end
+end
+```
 
 ## Contributing
 
