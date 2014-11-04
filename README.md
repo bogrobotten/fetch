@@ -335,6 +335,11 @@ SearchFetcher.new(search).fetch
 
 Now the keyword will be sent to the fetch modules instead of the fetchable.
 
+## Changelog
+
+See the [changelog](https://github.com/bogrobotten/fetch/blob/master/CHANGELOG.md)
+for changes in the different versions.
+
 ## Contributing
 
 Contributions are much appreciated. To contribute:
