@@ -177,7 +177,7 @@ callback isn't called.
 **Note:** If you don't specify a `failure` callback at all, HTTP failures are ignored,
 and processing skipped for the failed request.
 
-### Handling errors
+### Handling fetch errors
 
 Sometimes a URL will return something that potentially makes your processing
 code fail. To prevent this from breaking your whole fetch, you can handle
@@ -222,6 +222,24 @@ isn't run.
 **Note:** If you don't do any error handling in one of the two ways shown
 above, any exceptions that occur when processing will be raised, causing the
 whole fetch to fail. So please add error handling :blush:
+
+### General error handling
+
+You add a "catch all" `error` callback to your fetcher subclassed from
+`Fetch::Base`. This enables you to handle any unhandled errors, including errors
+in your fetcher callbacks.
+
+```ruby
+class UserFetcher < Fetch::Base
+  modules Facebook::UserInfoFetch,
+          Github::UserInfoFetch
+
+  error do |e|
+    # Do something that must be done,
+    # even if the fetch fails.
+  end
+end
+```
 
 ### Parsing JSON
 

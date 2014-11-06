@@ -21,7 +21,8 @@ module Fetch
                     :init,
                     :before_fetch,
                     :after_fetch,
-                    :progress
+                    :progress,
+                    :error
 
     def initialize(fetchable = nil)
       @fetchable = fetchable
@@ -45,6 +46,10 @@ module Fetch
       after_fetch
 
       true
+    rescue => e
+      raise e unless callback?(:error)
+      error(e)
+      false
     end
 
     private

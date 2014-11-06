@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.0.3
+
+* Adds an general `error` callback to `Fetch::Base` for catching any unhandled
+  errors that might occur.
+
 ## Version 0.0.2
 
 * Sends fetchable to fetch modules by default.
