@@ -52,6 +52,28 @@ class Test < Minitest::Test
     assert_equal "ok", klass.new.before!
   end
 
+  def test_callbacks_can_run_in_reverse_order
+    actions = []
+    klass = Class.new do
+      include Fetch::Callbacks
+      define_callback :after, reverse: true
+      after { actions << "first after" }
+      after { actions << "second after" }
+    end
+    klass.new.after
+    assert_equal ["second after", "first after"], actions
+  end
+
+  def test_reversed_bang_method_runs_only_first_callback
+    klass = Class.new do
+      include Fetch::Callbacks
+      define_callback :after, reverse: true
+      after { "first one defined" }
+      after { this_cant_run! }
+    end    
+    assert_equal "first one defined", klass.new.after!
+  end
+
   def test_callbacks_take_optional_arguments
     actions = []
     klass = Class.new do
