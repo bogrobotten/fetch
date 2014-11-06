@@ -47,9 +47,8 @@ module Fetch
 
       true
     rescue => e
-      raise e unless callback?(:error)
       error(e)
-      false
+      raise e
     end
 
     private

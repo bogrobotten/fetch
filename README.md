@@ -225,20 +225,27 @@ whole fetch to fail. So please add error handling :blush:
 
 ### General error handling
 
-You add a "catch all" `error` callback to your fetcher subclassed from
-`Fetch::Base`. This enables you to handle any unhandled errors, including errors
-in your fetcher callbacks.
+If you need to ensure that something is run, even if anything in the fetch
+fails, you can add an `error` callback to your `Fetch::Base` subclass.
 
 ```ruby
 class UserFetcher < Fetch::Base
   modules Facebook::UserInfoFetch,
           Github::UserInfoFetch
 
+  before_fetch do
+    this_fails!
+  end
+
   error do |e|
     # Do something that must be done,
     # even if the fetch fails.
   end
 end
+
+user = User.find(123)
+UserFetcher.new(user).fetch
+# => raises an exception, but the error callback will be run before that.
 ```
 
 ### Parsing JSON

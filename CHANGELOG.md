@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.0.4
+
+* Exceptions are raised after the general `Fetch::Base` `error` callback is
+  run.
+
 ## Version 0.0.3
 
 * Adds an general `error` callback to `Fetch::Base` for catching any unhandled

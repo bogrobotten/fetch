@@ -17,23 +17,10 @@ class ErrorTest < Minitest::Test
         actions << "got #{e.message}"
       end
     end
-    klass.new.fetch
-    assert_match /got undefined method `this_wont_work!'/, actions.first
-  end
-
-  def test_exception_is_raised_if_no_error_callback_specified
-    stub_request(:get, "http://test.com/one").to_return(body: "got one")
-    mod = Class.new(Fetch::Module) do
-      request do |req|
-        req.url = "http://test.com/one"
-        req.process do |body|
-          this_wont_work!
-        end
-      end
-    end
     assert_raises NoMethodError do
-      MockFetcher(mod).new.fetch
+      klass.new.fetch
     end
+    assert_match /got undefined method `this_wont_work!'/, actions.first
   end
 
   [:modules, :load, :init, :before_fetch, :after_fetch, :progress].each do |callback|
@@ -54,7 +41,9 @@ class ErrorTest < Minitest::Test
           actions << "got #{e.message}"
         end
       end
-      klass.new.fetch
+      assert_raises NoMethodError do
+        klass.new.fetch
+      end
       assert_match /got undefined method `this_#{callback}_fails!'/, actions.first
     end
   end
@@ -68,9 +57,7 @@ class ErrorTest < Minitest::Test
         req.process do |body|
           this_wont_work!
         end
-      end
-
-      error do |e|
+        req.error {}
       end
     end
     klass = Class.new(MockFetcher(mod)) do
