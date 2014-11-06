@@ -107,6 +107,52 @@ repos.
 
 ## Good to know
 
+### Doing something before a fetch
+
+If you need to run something before a fetch is started, you can do it using the
+`before_fetch` callback.
+
+```ruby
+class UserFetcher < Fetch::Module
+  modules Facebook::UserInfoFetch,
+          Github::UserInfoFetch
+
+  before_fetch do
+    # Do something before the fetch.
+  end
+end
+
+user = User.find(123)
+UserFetcher.new(user).fetch
+# => `before_fetch` is run before fetching
+```
+
+**Note:** If you define more than one `before_fetch` callback, they are run in the order
+in which they were defined.
+
+### Doing something after a fetch
+
+If you need to run something after a fetch is completed, you can do it using
+the `after_fetch` callback.
+
+```ruby
+class UserFetcher < Fetch::Module
+  modules Facebook::UserInfoFetch,
+          Github::UserInfoFetch
+
+  after_fetch do
+    # Do something after the fetch has completed.
+  end
+end
+
+user = User.find(123)
+UserFetcher.new(user).fetch
+# => `after_fetch` is run after fetching
+```
+
+**Note:** If you define more than one `after_fetch` callback, they are run in
+*reverse* order of which they were defined.
+
 ### Adding defaults to your requests
 
 Each fetch module has a `defaults` callback that you can use to set up defaults
