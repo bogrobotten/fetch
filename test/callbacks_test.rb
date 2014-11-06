@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CallbackTest < Minitest::Test
+class Test < Minitest::Test
   def test_callbacks
     actions = []
     klass = Class.new do
