@@ -42,6 +42,16 @@ class Test < Minitest::Test
     assert_equal "second", klass.new.before
   end
 
+  def test_bang_method_only_runs_last_callback
+    klass = Class.new do
+      include Fetch::Callbacks
+      define_callback :before
+      before { this_shouldnt_be_run! }
+      before { "ok" }
+    end
+    assert_equal "ok", klass.new.before!
+  end
+
   def test_callbacks_take_optional_arguments
     actions = []
     klass = Class.new do
