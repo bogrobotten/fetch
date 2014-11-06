@@ -20,9 +20,10 @@ module Fetch
                     :load,
                     :init,
                     :before_fetch,
-                    :after_fetch,
                     :progress,
                     :error
+
+    define_callback :after_fetch, reverse: true
 
     def initialize(fetchable = nil)
       @fetchable = fetchable

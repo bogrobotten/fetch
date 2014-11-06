@@ -8,6 +8,6 @@ class AfterFetchTest < Minitest::Test
       after_fetch { actions << "second after" }
     end
     klass.new.fetch
-    assert_equal ["first after", "second after"], actions
+    assert_equal ["second after", "first after"], actions
   end
 end
