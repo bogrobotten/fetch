@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.0.5
+
+* The `after_fetch` callbacks are run in the reverse order of which they were
+  defined.
+
 ## Version 0.0.4
 
 * Exceptions are raised after the general `Fetch::Base` `error` callback is

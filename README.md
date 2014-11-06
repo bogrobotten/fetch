@@ -151,7 +151,7 @@ UserFetcher.new(user).fetch
 ```
 
 **Note:** If you define more than one `after_fetch` callback, they are run in
-*reverse* order of which they were defined.
+the *reverse* order of which they were defined.
 
 ### Adding defaults to your requests
 
